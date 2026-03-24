@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Discovery I">
+  <meta name="theme-color" content="#000000">
+  <title>Discovery I — Audio Reception System</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Michroma&family=Nova+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-left">
+    SPACECRAFT: DISCOVERY ONE<br>
+    MISSION: JUPITER / BEYOND<br>
+    UNIT: HAL 9000 SERIES IV
+  </div>
+  <div class="masthead-center">
+    <div class="masthead-title">Audio Reception System</div>
+    <div class="masthead-sub">Subsystem 4 · Terrestrial Broadcast Intercept</div>
+  </div>
+  <div class="masthead-right">
+    ALL SYSTEMS NOMINAL<br>
+    <span class="status-ok">● OPERATIONAL</span><br>
+    CREW STATUS: ACTIVE
+  </div>
+</div>
+
+<!-- MISSION CLOCK -->
+<div class="mission-clock">
+  <div class="clock-group">
+    <div class="clock-item"><span>MET</span><span id="metClock">000:00:00:00</span></div>
+    <div class="clock-item"><span>UTC</span><span id="utcClock">00:00:00</span></div>
+    <div class="clock-item"><span>FREQ</span><span id="freqReadout">-- -- -- --</span></div>
+  </div>
+  <div class="clock-group">
+    <div class="clock-item"><span>SIGNAL</span><span id="sigReadout">NONE</span></div>
+    <div class="clock-item"><span>MODE</span><span id="modeReadout">STANDBY</span></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT: STATION DIRECTORY -->
+  <div class="panel-left">
+    <!-- Search -->
+    <div style="padding: 0.7rem 2rem; border-bottom: 1px solid var(--border2); display:flex; gap:1rem; align-items:center; background: var(--panel);">
+      <span style="font-size:0.45rem;letter-spacing:0.4em;color:var(--white-faint);white-space:nowrap;text-transform:uppercase;">Query</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="STATION IDENTIFIER / LOCATION / FORMAT"
+             style="border:none;border-bottom:1px solid var(--border);background:transparent;padding:0.3rem 0;">
+    </div>
+    <!-- Filters -->
+    <div style="padding:0.5rem 2rem;border-bottom:1px solid var(--border2);display:flex;gap:3px;background:var(--panel);">
+      <button class="filter-btn active" data-filter="all"       style="flex:1">ALL</button>
+      <button class="filter-btn"        data-filter="jazz"      style="flex:1">JAZZ</button>
+      <button class="filter-btn"        data-filter="classical" style="flex:1">CLAS</button>
+      <button class="filter-btn"        data-filter="world"     style="flex:1">WRLD</button>
+      <button class="filter-btn"        data-filter="eclectic"  style="flex:1">MISC</button>
+    </div>
+
+    <!-- US Stations -->
+    <div class="sec-header">
+      <div class="sec-label">Terrestrial — United States</div>
+      <div class="sec-line"></div>
+      <div class="sec-count" id="usCount">08 SOURCES</div>
+    </div>
+    <ul class="station-list" id="usGrid"></ul>
+
+    <!-- International -->
+    <div class="sec-header">
+      <div class="sec-label">International Intercept</div>
+      <div class="sec-line"></div>
+      <div class="sec-count" id="intlCount">08 SOURCES</div>
+    </div>
+    <ul class="station-list" id="intlGrid"></ul>
+  </div>
+
+  <!-- RIGHT: CONTROL PANEL -->
+  <div class="panel-right">
+
+    <!-- HAL EYE -->
+    <div class="hal-section">
+      <div class="hal-eye-wrap" id="halWrap" title="ENGAGE / DISENGAGE">
+        <div class="hal-ring"></div>
+        <div class="hal-ticks"></div>
+        <div class="hal-eye" id="halEye"></div>
+        <div class="hal-label">HAL 9000 · AUDIO CTRL</div>
+      </div>
+      <div class="now-recv">
+        <div class="recv-label">Now Receiving</div>
+        <div class="recv-station" id="recvStation">NO SIGNAL<span class="recv-cursor"></span></div>
+        <div class="recv-desc" id="recvDesc">Awaiting station selection</div>
+      </div>
+    </div>
+
+    <!-- SIGNAL METERS -->
+    <div class="meters-section">
+      <div class="ctrl-label">Signal Telemetry</div>
+      <div class="meter-row">
+        <div class="meter-label">Signal</div>
+        <div class="meter-track"><div class="meter-fill green" id="mSig" style="width:0%"></div></div>
+        <div class="meter-val" id="mSigVal">0%</div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-label">Buffer</div>
+        <div class="meter-track"><div class="meter-fill amber" id="mBuf" style="width:0%"></div></div>
+        <div class="meter-val" id="mBufVal">0%</div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-label">Noise</div>
+        <div class="meter-track"><div class="meter-fill red" id="mNoise" style="width:5%"></div></div>
+        <div class="meter-val" id="mNoiseVal">5%</div>
+      </div>
+    </div>
+
+    <!-- VU METER -->
+    <div class="vu-section">
+      <div class="vu-label">Audio Level — Channel L/R</div>
+      <div class="vu-grid">
+        <div>
+          <div class="vu-channel" id="vuL"></div>
+          <div class="vu-ch-label">LEFT</div>
+        </div>
+        <div>
+          <div class="vu-channel" id="vuR"></div>
+          <div class="vu-ch-label">RIGHT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOLUME KNOB -->
+    <div class="vol-section">
+      <div class="ctrl-label">Audio Level Control</div>
+      <div class="vol-knob-wrap">
+        <canvas id="volKnob" width="90" height="90" title="Drag to adjust volume"></canvas>
+        <div class="vol-knob-val" id="volKnobVal">80%</div>
+      </div>
+      <input type="range" id="volSlider" min="0" max="100" value="80" style="display:none">
+    </div>
+
+    <!-- ERROR STRIP -->
+    <div class="error-strip" id="errorStrip">
+      ⚠ TRANSMISSION FAULT — SOURCE UNAVAILABLE
+    </div>
+
+    <!-- CONSOLE LOG -->
+    <div class="console-section">
+      <div class="ctrl-label">System Log</div>
+      <div class="console-output" id="consoleOut"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <span>DISCOVERY ONE · AUDIO RECEPTION SUBSYSTEM 4 · UNIT HAL/AR-4</span>
+  <span class="hal-ident">HAL 9000</span>
+  <span>I'M SORRY, DAVE. THIS STATION IS NOMINAL.</span>
+  <button class="edit-db-btn" id="editDbBtn" title="Edit Station Database">⬡ EDIT DB</button>
+</div>
+
+<!-- STATION EDITOR MODAL -->
+<div class="editor-overlay" id="editorOverlay">
+  <div class="editor-panel">
+    <div class="editor-header">
+      <span class="editor-title">⬡ STATION DATABASE — EDIT MODE</span>
+      <button class="editor-close" id="editorClose">✕ CLOSE</button>
+    </div>
+    <div class="editor-body">
+      <div class="editor-list-wrap">
+        <div class="editor-section-label">INDEXED STATIONS</div>
+        <ul class="editor-list" id="editorList"></ul>
+        <button class="editor-add-btn" id="editorAddBtn">+ ADD NEW STATION</button>
+      </div>
+      <div class="editor-form-wrap" id="editorFormWrap">
+        <div class="editor-section-label" id="editorFormTitle">NEW STATION</div>
+        <div class="editor-field">
+          <label>REGION</label>
+          <select class="editor-input" id="fRegion">
+            <option value="us">US</option>
+            <option value="intl">INTL</option>
+          </select>
+        </div>
+        <div class="editor-field">
+          <label>CALL SIGN</label>
+          <input class="editor-input" id="fCall" placeholder="e.g. WXYZ" maxlength="12">
+        </div>
+        <div class="editor-field">
+          <label>FULL NAME</label>
+          <input class="editor-input" id="fName" placeholder="Station full name">
+        </div>
+        <div class="editor-field">
+          <label>LOCATION</label>
+          <input class="editor-input" id="fLoc" placeholder="e.g. CHICAGO, IL">
+        </div>
+        <div class="editor-field">
+          <label>FREQUENCY</label>
+          <input class="editor-input" id="fFreq" placeholder="e.g. 91.5 FM">
+        </div>
+        <div class="editor-field">
+          <label>DESCRIPTION</label>
+          <input class="editor-input" id="fDesc" placeholder="Short tagline">
+        </div>
+        <div class="editor-field">
+          <label>TAGS <span style="color:var(--white-faint)">(comma-separated: jazz,blues)</span></label>
+          <input class="editor-input" id="fTags" placeholder="jazz,blues,eclectic">
+        </div>
+        <div class="editor-field">
+          <label>STREAM URL(S) <span style="color:var(--white-faint)">(one per line, tried in order)</span></label>
+          <textarea class="editor-input editor-textarea" id="fStreams"
+                    placeholder="https://stream.example.com/live.mp3&#10;https://stream.example.com/fallback.mp3"></textarea>
+        </div>
+        <div class="editor-actions">
+          <button class="editor-save-btn"   id="editorSaveBtn">SAVE STATION</button>
+          <button class="editor-cancel-btn" id="editorCancelBtn">CANCEL</button>
+        </div>
+        <div class="editor-status" id="editorStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="stations.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
