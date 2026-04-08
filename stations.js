@@ -10,6 +10,16 @@
 const STATIONS = {
   us: [
     {
+      call: 'WJC3', name: 'WJC3 Radio',
+      loc: 'LOCAL', tags: ['jazz'], freq: 'LOCAL',
+      desc: 'Local Library Stream',
+      featured: true,
+      nowPlayingUrl: 'http://azuracast.home/api/nowplaying/jc3_radio',
+      streams: [
+        'http://azuracast.home/listen/jc3_radio/radio.mp3',
+      ]
+    },
+    {
       call: 'WWOZ', name: 'New Orleans Jazz & Heritage Radio',
       loc: 'NEW ORLEANS, LA', tags: ['jazz', 'blues', 'world'], freq: '90.7 FM',
       desc: 'The Voice of New Orleans',
@@ -115,15 +125,6 @@ const STATIONS = {
       desc: 'Miami Jazz & Latin Jazz',
       streams: [
         'https://wdna.streamguys1.com/wdna128',
-      ]
-    },
-    {
-      call: 'WJC3', name: 'WJC3 Radio',
-      loc: 'LOCAL', tags: ['jazz'], freq: 'LOCAL',
-      desc: 'Local Library Stream',
-      nowPlayingUrl: 'http://azuracast.home/api/nowplaying/jc3_radio',
-      streams: [
-        'http://azuracast.home/listen/jc3_radio/radio.mp3',
       ]
     },
   ],

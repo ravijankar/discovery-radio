@@ -398,7 +398,7 @@ function stopAll() {
 let rowNum = 1;
 function buildItem(st) {
   const li = document.createElement('li');
-  li.className      = 'station-item';
+  li.className      = 'station-item' + (st.featured ? ' featured' : '');
   li.dataset.call   = st.call;
   li.dataset.tags   = st.tags.join(',');
   li.dataset.text   = (st.call + st.name + st.loc + st.tags.join(' ')).toLowerCase();
@@ -409,6 +409,7 @@ function buildItem(st) {
       <div class="station-call"><span class="tx-dot"></span>${st.call}</div>
       <div class="station-name">${st.name.toUpperCase()}</div>
       <div class="station-tags">${st.tags.join(' · ').toUpperCase()}</div>
+      ${st.featured ? '<div class="featured-badge">★ LOCAL</div>' : ''}
     </div>
     <div class="station-right">
       <div class="station-freq">${st.freq}</div>

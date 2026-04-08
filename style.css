@@ -254,6 +254,60 @@ body::after {
   text-transform: uppercase;
 }
 
+/* ── FEATURED STATION (WJC3) ─────────────────── */
+.station-item.featured {
+  background: #0b0800;
+  border-left: 3px solid var(--amber);
+  border-bottom: 1px solid #2a1f00;
+}
+
+.station-item.featured:hover { background: #120d00; }
+.station-item.featured.active { background: #150f00; }
+
+.station-item.featured .row-num {
+  color: var(--amber);
+  background: rgba(212,130,10,0.06);
+  border-right-color: #2a1f00;
+}
+
+.station-item.featured .station-call {
+  color: var(--amber);
+  font-size: 0.82rem;
+}
+
+.station-item.featured .station-name {
+  color: #b87a30;
+}
+
+.station-item.featured .station-freq {
+  color: var(--amber);
+}
+
+.station-item.featured .station-right {
+  border-left-color: #2a1f00;
+}
+
+.station-item.featured .tx-dot {
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+}
+
+.station-item.featured.active .row-num {
+  color: var(--amber);
+  background: rgba(212,130,10,0.12);
+}
+
+.featured-badge {
+  font-size: 0.38rem;
+  letter-spacing: 0.3em;
+  color: var(--amber-dim);
+  border: 1px solid var(--amber-dim);
+  padding: 1px 5px;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+
 .station-right {
   padding: 0.75rem 1rem;
   display: flex;
@@ -405,11 +459,12 @@ body::after {
 
 .recv-station {
   font-family: 'Michroma', sans-serif;
-  font-size: 0.85rem;
+  font-size: 1.25rem;
   letter-spacing: 0.2em;
   color: var(--white);
-  margin-bottom: 0.25rem;
-  min-height: 1.2rem;
+  margin-bottom: 0.3rem;
+  min-height: 1.4rem;
+  text-shadow: 0 0 12px rgba(232,232,232,0.15);
 }
 
 .recv-desc {
@@ -669,7 +724,7 @@ body::after {
 ::-webkit-scrollbar-track { background: var(--void); }
 ::-webkit-scrollbar-thumb { background: var(--border); }
 
-/* ── RESPONSIVE ───────────────────────────────── */
+/* ── RESPONSIVE — TABLET / SMALL DESKTOP ─────── */
 @media (max-width: 800px) {
   .masthead {
     grid-template-columns: 1fr;
@@ -697,9 +752,6 @@ body::after {
     flex-direction: column;
     align-items: center;
   }
-  .hal-wrap  { width: 100px; height: 100px; }
-  .hal-iris  { width: 70px;  height: 70px; }
-  .hal-pupil { width: 30px;  height: 30px; }
 
   .now-recv { text-align: center; }
 
@@ -709,16 +761,13 @@ body::after {
 
   .vol-section { padding: 0.75rem 1rem; }
 
-  .station-item  { padding: 0.75rem 1rem; min-height: 52px; }
+  .station-item  { min-height: 52px; }
   .station-call  { font-size: 0.75rem; }
   .station-name  { font-size: 0.55rem; }
   .station-freq  { font-size: 0.6rem; }
   .station-loc   { font-size: 0.45rem; }
 
-  .search-row { padding: 0.5rem 1rem; }
-  .filter-row { padding: 0.25rem 1rem; gap: 0.4rem; flex-wrap: wrap; }
   .filter-btn { padding: 3px 8px; font-size: 0.45rem; }
-
   .sec-header { padding: 0.4rem 1rem; }
 
   .bottom-bar {
@@ -738,6 +787,130 @@ body::after {
     max-height: 200px;
     border-right: none;
     border-bottom: 1px solid var(--border);
+  }
+}
+
+/* ── RESPONSIVE — iPHONE (≤ 430px) ──────────── */
+@media (max-width: 430px) {
+  html { font-size: 16px; }
+
+  body { cursor: default; }
+
+  .masthead {
+    padding: 0.6rem 1rem 0.5rem;
+  }
+  .masthead-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+  }
+  .masthead-sub { display: none; }
+
+  .mission-clock {
+    font-size: 0.55rem;
+    padding: 0.35rem 1rem;
+    gap: 0.5rem;
+  }
+  .clock-group { gap: 1.2rem; }
+  .clock-item span:first-child { margin-right: 0.4rem; }
+
+  /* Controls strip — compact horizontal row above station list */
+  .panel-right {
+    order: -1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hal-section {
+    padding: 1rem 1rem 0.75rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .hal-eye-wrap {
+    width: 72px; height: 72px;
+    flex-shrink: 0;
+  }
+  .hal-eye {
+    width: 72px; height: 72px;
+  }
+  .hal-ring { inset: -10px; }
+  .hal-ticks { inset: -6px; }
+  .hal-label { font-size: 0.38rem; bottom: -18px; }
+
+  .now-recv {
+    text-align: left;
+    flex: 1;
+    padding: 0.7rem 0.8rem;
+  }
+  .recv-label { font-size: 0.38rem; margin-bottom: 0.3rem; }
+  .recv-station {
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+  }
+  .recv-desc { font-size: 0.42rem; }
+
+  .vol-section {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .vol-knob-wrap { gap: 0.8rem; }
+  #volKnob { width: 64px; height: 64px; }
+
+  /* Station list — touch-optimized */
+  .station-item {
+    min-height: 60px;
+    grid-template-columns: 2.5rem 1fr auto;
+  }
+
+  .station-item.featured {
+    min-height: 68px;
+  }
+  .station-item.featured .station-call {
+    font-size: 0.88rem;
+  }
+
+  .row-num { font-size: 0.42rem; }
+
+  .station-body { padding: 0.7rem 0.9rem; }
+  .station-call { font-size: 0.72rem; }
+  .station-name { font-size: 0.5rem; }
+  .station-tags { font-size: 0.4rem; margin-top: 0.2rem; }
+
+  .station-right {
+    padding: 0.6rem 0.7rem;
+    min-width: 62px;
+  }
+  .station-freq { font-size: 0.52rem; }
+  .station-loc  { font-size: 0.38rem; }
+
+  /* Search & filters */
+  div[style*="padding: 0.7rem 2rem"] {
+    padding: 0.5rem 0.8rem !important;
+  }
+  .search-input { font-size: 0.52rem; }
+
+  div[style*="padding:0.5rem 2rem"] {
+    padding: 0.35rem 0.8rem !important;
+  }
+  .filter-btn {
+    font-size: 0.4rem;
+    padding: 4px 6px;
+  }
+
+  .sec-header { padding: 0.35rem 0.8rem; }
+  .sec-label  { font-size: 0.42rem; letter-spacing: 0.3em; }
+  .sec-count  { font-size: 0.4rem; }
+
+  .bottom-bar { padding: 0.35rem 0.8rem; }
+
+  /* Editor modal full-screen on iPhone */
+  .editor-overlay { padding: 0; align-items: flex-end; }
+  .editor-panel {
+    max-height: 92vh;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
   }
 }
 
