@@ -14,6 +14,7 @@ const STATIONS = {
       loc: 'NEW ORLEANS, LA', tags: ['jazz', 'blues', 'world'], freq: '90.7 FM',
       desc: 'The Voice of New Orleans',
       streams: [
+        'https://wwoz-sc.wwoz.org/wwoz-hi.mp3',
         'https://wwoz-sc.streamguys1.com/wwoz-hi.mp3',
       ]
     },
@@ -79,8 +80,50 @@ const STATIONS = {
       loc: 'NEWARK, NJ', tags: ['jazz'], freq: '88.3 FM',
       desc: 'Newark Public Radio Jazz',
       streams: [
+        'https://wbgo.streamguys1.com/wbgo128',
         'https://ais-sa8.cdnstream1.com/3629_128.mp3',
         'https://ais-sa8.cdnstream1.com/3629_64.aac',
+      ]
+    },
+    {
+      call: 'WEMU', name: 'WEMU Public Radio',
+      loc: 'YPSILANTI, MI', tags: ['jazz', 'blues'], freq: '89.1 FM',
+      desc: 'Jazz & Blues from Eastern Michigan',
+      streams: [
+        'https://wemu.streamguys1.com/wemu128',
+      ]
+    },
+    {
+      call: 'Jazz24', name: 'Jazz24',
+      loc: 'TACOMA, WA', tags: ['jazz'], freq: 'ONLINE',
+      desc: 'Pacific Public Radio — Jazz Classics & Contemporary',
+      streams: [
+        'https://live.wostreaming.net/direct/ppm-jazz24aac-ibc1',
+      ]
+    },
+    {
+      call: 'OCTAVE', name: 'Octave Radio',
+      loc: 'ONLINE', tags: ['jazz'], freq: 'ONLINE',
+      desc: 'Hi-Fi Jazz & Acoustic',
+      streams: [
+        'https://octaveradio.streamguys1.com/octave128',
+      ]
+    },
+    {
+      call: 'WDNA', name: 'WDNA Miami Jazz',
+      loc: 'MIAMI, FL', tags: ['jazz', 'world'], freq: '88.9 FM',
+      desc: 'Miami Jazz & Latin Jazz',
+      streams: [
+        'https://wdna.streamguys1.com/wdna128',
+      ]
+    },
+    {
+      call: 'WJC3', name: 'WJC3 Radio',
+      loc: 'LOCAL', tags: ['jazz'], freq: 'LOCAL',
+      desc: 'Local Library Stream',
+      nowPlayingUrl: 'http://azuracast.home/api/nowplaying/jc3_radio',
+      streams: [
+        'http://azuracast.home/listen/jc3_radio/radio.mp3',
       ]
     },
   ],
@@ -157,6 +200,30 @@ const STATIONS = {
         'https://ice6.somafm.com/groovesalad-128-mp3',
         'https://ice4.somafm.com/groovesalad-128-mp3',
         'https://ice2.somafm.com/groovesalad-128-mp3',
+      ]
+    },
+    {
+      call: 'TSF', name: 'TSF Jazz',
+      loc: 'PARIS, FRANCE', tags: ['jazz'], freq: '89.9 FM',
+      desc: 'Paris Jazz Radio',
+      streams: [
+        'https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3',
+      ]
+    },
+    {
+      call: 'RSJ', name: 'Radio Swiss Jazz',
+      loc: 'ZÜRICH, SWITZERLAND', tags: ['jazz', 'blues'], freq: 'ONLINE',
+      desc: 'Swiss Public Radio — Jazz, Soul & Blues',
+      streams: [
+        'https://stream.srg-ssr.ch/rsp/aacp_96.stream',
+      ]
+    },
+    {
+      call: 'LINN', name: 'Linn Jazz',
+      loc: 'GLASGOW, UK', tags: ['jazz'], freq: 'ONLINE',
+      desc: 'High Quality Jazz Classics — Linn Records',
+      streams: [
+        'https://radio.linnrecords.com/linn-jazz.mp3',
       ]
     },
   ]

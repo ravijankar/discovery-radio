@@ -7,6 +7,7 @@
 let audio = null, currentStation = null, playing = false;
 let streamIndex = 0;
 let currentVolume = 0.8;
+let nowPlayingTimer = null;
 
 // ── DOM REFS ─────────────────────────────────
 const halWrap    = document.getElementById('halWrap');
@@ -227,6 +228,34 @@ document.getElementById('volSlider').addEventListener('input', function () {
 
 drawKnob(80);
 
+// ── NOW PLAYING ──────────────────────────────
+function startNowPlaying(st) {
+  if (!st.nowPlayingUrl) return;
+  clearInterval(nowPlayingTimer);
+  pollNowPlaying(st);
+  nowPlayingTimer = setInterval(() => pollNowPlaying(st), 15000);
+}
+
+function stopNowPlaying() {
+  clearInterval(nowPlayingTimer);
+  nowPlayingTimer = null;
+}
+
+function pollNowPlaying(st) {
+  if (currentStation?.call !== st.call || !playing) return;
+  fetch(st.nowPlayingUrl)
+    .then(r => r.json())
+    .then(data => {
+      if (currentStation?.call !== st.call) return;
+      const song = data?.now_playing?.song;
+      if (song) {
+        const parts = [song.artist, song.title].filter(Boolean);
+        if (parts.length) recvDesc.textContent = parts.join(' — ').toUpperCase();
+      }
+    })
+    .catch(() => {});
+}
+
 // ── PLAYBACK ENGINE ──────────────────────────
 // Multi-source fallback: tries each URL in st.streams[] in order.
 // Supports both direct streams and HLS (.m3u8) via native browser HLS.
@@ -295,6 +324,7 @@ function tryStream(st, card, idx) {
     addLog('RX: ' + st.loc + ' / ' + st.freq, 'ok');
     animateVU(true);
     animateMeters(true);
+    startNowPlaying(st);
   }, { once: true });
 
   audio.addEventListener('error', () => {
@@ -325,6 +355,7 @@ function onAllFailed(st) {
   freqOut.textContent  = '-- -- -- --';
   errorStrip.classList.add('show');
   allOff(); animateVU(false); animateMeters(false);
+  stopNowPlaying();
   addLog('ALL SOURCES EXHAUSTED: ' + st.call, 'err');
   addLog('STATION MAY BE OFFLINE OR GEO-RESTRICTED', 'warn');
 }
@@ -332,6 +363,7 @@ function onAllFailed(st) {
 function playStation(st, card) {
   errorStrip.classList.remove('show');
   if (currentStation?.call === st.call && playing) { stopAll(); return; }
+  stopNowPlaying();
   destroyAudio();
   allOff();
   currentStation = st;
@@ -358,6 +390,7 @@ function stopAll() {
   freqOut.textContent  = '-- -- -- --';
   errorStrip.classList.remove('show');
   allOff(); animateVU(false); animateMeters(false);
+  stopNowPlaying();
   addLog('TRANSMISSION TERMINATED BY OPERATOR', 'warn');
 }
 
@@ -460,6 +493,7 @@ function rebuildMainList() {
 }
 
 let editingRegion = null, editingIndex = null;
+let dragSrcEl = null;
 
 const overlay      = document.getElementById('editorOverlay');
 const editorList   = document.getElementById('editorList');
@@ -519,8 +553,12 @@ function renderEditorList() {
     STATIONS[region].forEach((st, idx) => {
       const li = document.createElement('li');
       li.className = 'editor-list-item';
+      li.draggable = true;
+      li.dataset.region = region;
+      li.dataset.idx    = idx;
       li.innerHTML = `
-        <div>
+        <div class="eli-drag" title="Drag to reorder">⠿</div>
+        <div style="flex:1;min-width:0;">
           <div class="eli-call">${st.call}</div>
           <div class="eli-loc">${st.loc}</div>
         </div>
@@ -530,7 +568,7 @@ function renderEditorList() {
         </div>
       `;
       li.addEventListener('click', e => {
-        if (e.target.classList.contains('eli-delete')) return;
+        if (e.target.classList.contains('eli-delete') || e.target.classList.contains('eli-drag')) return;
         document.querySelectorAll('.editor-list-item').forEach(el => el.classList.remove('selected'));
         li.classList.add('selected');
         loadStationIntoForm(region, idx);
@@ -539,9 +577,51 @@ function renderEditorList() {
         e.stopPropagation();
         deleteStation(region, idx);
       });
+
+      li.addEventListener('dragstart', e => {
+        dragSrcEl = li;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => li.classList.add('dragging'), 0);
+      });
+      li.addEventListener('dragend', () => {
+        li.classList.remove('dragging');
+        document.querySelectorAll('.editor-list-item').forEach(el => el.classList.remove('drag-over'));
+        dragSrcEl = null;
+      });
+      li.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+      li.addEventListener('dragenter', e => {
+        e.preventDefault();
+        if (dragSrcEl && li !== dragSrcEl) li.classList.add('drag-over');
+      });
+      li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+      li.addEventListener('drop', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        li.classList.remove('drag-over');
+        if (!dragSrcEl || dragSrcEl === li) return;
+        const items = [...editorList.querySelectorAll('.editor-list-item')];
+        const srcPos = items.indexOf(dragSrcEl);
+        const tgtPos = items.indexOf(li);
+        reorderStations(srcPos, tgtPos);
+      });
+
       editorList.appendChild(li);
     });
   });
+}
+
+function reorderStations(srcPos, tgtPos) {
+  const flat = [];
+  ['us', 'intl'].forEach(region => {
+    STATIONS[region].forEach(st => flat.push({ st, region }));
+  });
+  const [moved] = flat.splice(srcPos, 1);
+  flat.splice(tgtPos, 0, moved);
+  STATIONS.us   = flat.filter(x => x.region === 'us').map(x => x.st);
+  STATIONS.intl = flat.filter(x => x.region === 'intl').map(x => x.st);
+  saveUserStations();
+  rebuildMainList();
+  renderEditorList();
 }
 
 function loadStationIntoForm(region, idx) {
