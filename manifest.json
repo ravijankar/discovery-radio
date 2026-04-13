@@ -1,0 +1,17 @@
+{
+  "name": "Discovery I — Audio Reception System",
+  "short_name": "Discovery I",
+  "description": "HAL 9000 Audio Reception System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

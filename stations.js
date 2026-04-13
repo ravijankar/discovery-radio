@@ -127,6 +127,15 @@ const STATIONS = {
         'https://wdna.streamguys1.com/wdna128',
       ]
     },
+    {
+      call: 'JC3', name: 'JC3 Radio',
+      loc: 'LOCAL', tags: ['jazz'], freq: 'LOCAL',
+      desc: 'Local Library Stream',
+      nowPlayingUrl: 'https://radio.ravijankar.com/api/nowplaying/jc3_radio',
+      streams: [
+        'https://radio.ravijankar.com/listen/jc3_radio/radio.mp3',
+      ]
+    },
   ],
   intl: [
     {

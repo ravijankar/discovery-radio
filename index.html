@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#000000">
   <title>Discovery I — Audio Reception System</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Michroma&family=Nova+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -230,5 +231,10 @@
 
 <script src="stations.js"></script>
 <script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
 </body>
 </html>
