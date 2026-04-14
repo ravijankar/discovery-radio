@@ -14,8 +14,8 @@ const STATIONS = {
       loc: 'NEW ORLEANS, LA', tags: ['jazz', 'blues', 'world'], freq: '90.7 FM',
       desc: 'The Voice of New Orleans',
       streams: [
-        'https://wwoz-sc.wwoz.org/wwoz-hi.mp3',
         'https://wwoz-sc.streamguys1.com/wwoz-hi.mp3',
+        'https://wwoz-sc.wwoz.org/wwoz-hi.mp3',
       ]
     },
     {
