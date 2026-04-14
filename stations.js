@@ -72,8 +72,8 @@ const STATIONS = {
       loc: 'SAN MATEO, CA', tags: ['jazz'], freq: '91.1 FM',
       desc: 'Bay Area Jazz Station',
       streams: [
-        'https://kcsm.streamguys1.com/kcsm128.mp3',
-        'https://kcsm.streamguys1.com/kcsm128',
+        'http://ice5.securenetsystems.net/KCSM',
+        'http://ice7.securenetsystems.net/KCSM2',
       ]
     },
     {
@@ -90,7 +90,6 @@ const STATIONS = {
       loc: 'NEWARK, NJ', tags: ['jazz'], freq: '88.3 FM',
       desc: 'Newark Public Radio Jazz',
       streams: [
-        'https://wbgo.streamguys1.com/wbgo128',
         'https://ais-sa8.cdnstream1.com/3629_128.mp3',
         'https://ais-sa8.cdnstream1.com/3629_64.aac',
       ]
@@ -100,7 +99,7 @@ const STATIONS = {
       loc: 'YPSILANTI, MI', tags: ['jazz', 'blues'], freq: '89.1 FM',
       desc: 'Jazz & Blues from Eastern Michigan',
       streams: [
-        'https://wemu.streamguys1.com/wemu128',
+        'http://playerservices.streamtheworld.com/api/livestream-redirect/WEMUFM.mp3',
       ]
     },
     {
@@ -108,7 +107,8 @@ const STATIONS = {
       loc: 'TACOMA, WA', tags: ['jazz'], freq: 'ONLINE',
       desc: 'Pacific Public Radio — Jazz Classics & Contemporary',
       streams: [
-        'https://live.wostreaming.net/direct/ppm-jazz24aac-ibc1',
+        'https://knkx-live-a.edge.audiocdn.com/6285_128k',
+        'https://knkx-live-a.edge.audiocdn.com/6285_48k',
       ]
     },
     {
@@ -116,7 +116,8 @@ const STATIONS = {
       loc: 'ONLINE', tags: ['jazz'], freq: 'ONLINE',
       desc: 'Hi-Fi Jazz & Acoustic',
       streams: [
-        'https://octaveradio.streamguys1.com/octave128',
+        'https://octaverecords.out.airtime.pro/octaverecords_b',
+        'https://octaverecords.out.airtime.pro/octaverecords_a',
       ]
     },
     {
@@ -124,7 +125,7 @@ const STATIONS = {
       loc: 'MIAMI, FL', tags: ['jazz', 'world'], freq: '88.9 FM',
       desc: 'Miami Jazz & Latin Jazz',
       streams: [
-        'https://wdna.streamguys1.com/wdna128',
+        'https://us9.streamingpulse.com/ssl/WDNA',
       ]
     },
   ],
@@ -167,11 +168,12 @@ const STATIONS = {
       ]
     },
     {
-      call: 'ARTE R', name: 'ARTE Radio',
-      loc: 'STRASBOURG, FRANCE', tags: ['eclectic', 'world'], freq: 'ONLINE',
-      desc: 'Franco-German Arts Broadcasting',
+      call: 'FRA MUS', name: 'France Musique',
+      loc: 'PARIS, FRANCE', tags: ['classical', 'world'], freq: '91.7 FM',
+      desc: 'Radio France — Classical & Jazz',
       streams: [
-        'https://artestandard.ice.infomaniak.ch/arte-standard-128.mp3',
+        'https://icecast.radiofrance.fr/francemusique-hifi.aac',
+        'https://direct.francemusique.fr/live/francemusique-hifi.aac',
       ]
     },
     {
@@ -179,8 +181,7 @@ const STATIONS = {
       loc: 'LIMERICK, IRELAND', tags: ['classical'], freq: '96.0 FM',
       desc: "Ireland's Classical Station",
       streams: [
-        'https://rtelyricfm.akamaized.net/audio/lyricfm/rtelyricfm_hi.m3u8',
-        'https://rtelyricfm.akamaized.net/audio/lyricfm/rtelyricfm_lo.m3u8',
+        'https://www.rte.ie/manifests/lyric.m3u8',
       ]
     },
     {
@@ -216,7 +217,8 @@ const STATIONS = {
       loc: 'ZÜRICH, SWITZERLAND', tags: ['jazz', 'blues'], freq: 'ONLINE',
       desc: 'Swiss Public Radio — Jazz, Soul & Blues',
       streams: [
-        'https://stream.srg-ssr.ch/rsp/aacp_96.stream',
+        'https://stream.srg-ssr.ch/srgssr/rsj/mp3/128',
+        'https://stream.srg-ssr.ch/srgssr/rsj/aac/96',
       ]
     },
     {
@@ -224,7 +226,7 @@ const STATIONS = {
       loc: 'GLASGOW, UK', tags: ['jazz'], freq: 'ONLINE',
       desc: 'High Quality Jazz Classics — Linn Records',
       streams: [
-        'https://radio.linnrecords.com/linn-jazz.mp3',
+        'http://radio.linn.co.uk:8000/autodj',
       ]
     },
   ]
