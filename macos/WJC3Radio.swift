@@ -27,6 +27,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.center()
         window.setFrameAutosaveName("WJC3RadioWindow")
         window.makeKeyAndOrderFront(nil)
+
+        let menu = NSMenu()
+        let appMenu = NSMenu()
+        let appItem = NSMenuItem()
+        appItem.submenu = appMenu
+        appMenu.addItem(NSMenuItem(title: "Quit WJC3 Radio", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(appItem)
+        NSApp.mainMenu = menu
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
