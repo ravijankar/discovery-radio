@@ -1,18 +1,48 @@
 #!/usr/bin/env bash
 # Builds WJC3 Radio.app and Discovery Radio.app
-# Run from the macos/ directory: bash build.sh
-# Output: two .app bundles in ~/Applications (created if needed)
+# Run from anywhere: bash macos/build.sh
+# Output: two .app bundles in ~/Applications
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_DIR="$(dirname "$SCRIPT_DIR")"
 OUT_DIR="$HOME/Applications"
 mkdir -p "$OUT_DIR"
 
+# ── Build .icns from favicon.svg ─────────────────────
+make_icns() {
+    local svg="$REPO_DIR/favicon.svg"
+    local icns_out="$SCRIPT_DIR/AppIcon.icns"
+    local iconset="/tmp/AppIcon.iconset"
+
+    echo "→ Generating AppIcon.icns..."
+    rm -rf "$iconset" && mkdir "$iconset"
+
+    # Render SVG → 1024px PNG via Quick Look
+    qlmanage -t -s 1024 -o /tmp/ "$svg" > /dev/null 2>&1
+    local src="/tmp/favicon.svg.png"
+
+    for size in 16 32 64 128 256 512 1024; do
+        sips -z $size $size "$src" --out "$iconset/icon_${size}x${size}.png" > /dev/null
+    done
+
+    # @2x variants expected by iconutil
+    cp "$iconset/icon_32x32.png"   "$iconset/icon_16x16@2x.png"
+    cp "$iconset/icon_64x64.png"   "$iconset/icon_32x32@2x.png"
+    cp "$iconset/icon_256x256.png" "$iconset/icon_128x128@2x.png"
+    cp "$iconset/icon_512x512.png" "$iconset/icon_256x256@2x.png"
+    cp "$iconset/icon_1024x1024.png" "$iconset/icon_512x512@2x.png"
+
+    iconutil -c icns "$iconset" -o "$icns_out"
+    rm -rf "$iconset" "$src"
+    echo "  ✓ AppIcon.icns"
+}
+
+# ── Build one .app ────────────────────────────────────
 build_app() {
-    local display_name="$1"   # e.g. "WJC3 Radio"
-    local swift_file="$2"     # e.g. "WJC3Radio.swift"
-    local bundle_id="$3"      # e.g. "com.ravijankar.wjc3radio"
-    local width="$4"
-    local height="$5"
+    local display_name="$1"
+    local swift_file="$2"
+    local bundle_id="$3"
     local app_path="$OUT_DIR/${display_name}.app"
 
     echo "→ Building ${display_name}.app..."
@@ -23,8 +53,11 @@ build_app() {
 
     # Compile
     swiftc -framework Cocoa -framework WebKit \
-        "$(dirname "$0")/$swift_file" \
+        "$SCRIPT_DIR/$swift_file" \
         -o "$app_path/Contents/MacOS/$display_name"
+
+    # Copy icon
+    cp "$SCRIPT_DIR/AppIcon.icns" "$app_path/Contents/Resources/AppIcon.icns"
 
     # Info.plist
     cat > "$app_path/Contents/Info.plist" <<PLIST
@@ -40,6 +73,8 @@ build_app() {
     <string>${display_name}</string>
     <key>CFBundleDisplayName</key>
     <string>${display_name}</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleVersion</key>
     <string>1.0</string>
     <key>CFBundleShortVersionString</key>
@@ -62,11 +97,10 @@ PLIST
     echo "  ✓ $app_path"
 }
 
-cd "$(dirname "$0")"
-
-build_app "WJC3 Radio"      "WJC3Radio.swift"      "com.ravijankar.wjc3radio"      700  920
-build_app "Discovery Radio" "DiscoveryRadio.swift" "com.ravijankar.discoveryradio" 1400 900
+make_icns
+build_app "WJC3 Radio"      "WJC3Radio.swift"      "com.ravijankar.wjc3radio"
+build_app "Discovery Radio" "DiscoveryRadio.swift" "com.ravijankar.discoveryradio"
 
 echo ""
 echo "Done. Apps are in $OUT_DIR"
-echo "First launch: right-click the app → Open (to bypass Gatekeeper)"
+echo "First launch: right-click → Open (to bypass Gatekeeper)"
