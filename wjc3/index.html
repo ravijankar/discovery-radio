@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="WJC3 Radio">
+  <meta name="theme-color" content="#000000">
+  <title>WJC3 Radio — Personal Jazz Archive</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Michroma&family=Nova+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-ident">
+    <div class="header-call">WJC3</div>
+    <div class="header-sub">HAL9000 Music Archive</div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-item">
+      <span class="stat-label">UTC</span>
+      <span class="stat-val" id="utcClock">--:--:--</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">LSTNRS</span>
+      <span class="stat-val" id="listenerCount">—</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">STATUS</span>
+      <span class="stat-val status-val" id="statusVal">STANDBY</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- HAL EYE -->
+  <div class="eye-section">
+    <div class="hal-eye-wrap" id="halWrap" title="ENGAGE / DISENGAGE TRANSMISSION">
+      <div class="hal-ring"></div>
+      <div class="hal-ticks"></div>
+      <div class="hal-eye" id="halEye"></div>
+    </div>
+    <div class="eye-label" id="eyeLabel">ENGAGE TRANSMISSION</div>
+  </div>
+
+  <!-- NOW PLAYING -->
+  <div class="now-playing" id="nowPlaying">
+    <div class="np-header">
+      <span class="np-badge">NOW RECEIVING</span>
+    </div>
+    <div class="np-body">
+      <div class="np-art-wrap" id="npArtWrap">
+        <img class="np-art" id="npArt" src="" alt="">
+        <div class="np-art-placeholder" id="npArtPlaceholder">♪</div>
+      </div>
+      <div class="np-info">
+        <div class="np-artist" id="npArtist">—</div>
+        <div class="np-title" id="npTitle">AWAITING SIGNAL</div>
+        <div class="np-album" id="npAlbum"></div>
+      </div>
+    </div>
+    <div class="np-progress-wrap">
+      <span class="np-time" id="npElapsed">—</span>
+      <div class="np-bar"><div class="np-fill" id="npFill" style="width:0%"></div></div>
+      <span class="np-time" id="npDuration">—</span>
+    </div>
+  </div>
+
+  <!-- METERS + VOLUME -->
+  <div class="controls-row">
+
+    <!-- VU METER -->
+    <div class="vu-section">
+      <div class="ctrl-label">AUDIO LEVEL</div>
+      <div class="vu-grid">
+        <div class="vu-col">
+          <div class="vu-channel" id="vuL"></div>
+          <div class="vu-ch-label">L</div>
+        </div>
+        <div class="vu-col">
+          <div class="vu-channel" id="vuR"></div>
+          <div class="vu-ch-label">R</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNAL METERS -->
+    <div class="sig-section">
+      <div class="ctrl-label">SIGNAL TELEMETRY</div>
+      <div class="meter-row">
+        <div class="meter-label">SIG</div>
+        <div class="meter-track"><div class="meter-fill green" id="mSig" style="width:0%"></div></div>
+        <div class="meter-val" id="mSigVal">0%</div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-label">BUF</div>
+        <div class="meter-track"><div class="meter-fill amber" id="mBuf" style="width:0%"></div></div>
+        <div class="meter-val" id="mBufVal">0%</div>
+      </div>
+    </div>
+
+    <!-- VOLUME KNOB -->
+    <div class="vol-section">
+      <div class="ctrl-label">VOLUME</div>
+      <div class="vol-knob-wrap">
+        <canvas id="volKnob" width="80" height="80" title="Drag to adjust volume"></canvas>
+        <div class="vol-val" id="volKnobVal">80%</div>
+      </div>
+      <input type="range" id="volSlider" min="0" max="100" value="80" style="display:none">
+    </div>
+
+  </div>
+
+  <!-- ERROR STRIP -->
+  <div class="error-strip" id="errorStrip">
+    ⚠ TRANSMISSION FAULT — SOURCE UNAVAILABLE
+  </div>
+
+</div>
+
+<!-- SYSTEM LOG -->
+<div class="log-section">
+  <div class="log-label">SYSTEM LOG</div>
+  <div class="log-output" id="logOut"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

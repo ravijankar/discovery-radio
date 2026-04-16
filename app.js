@@ -183,7 +183,7 @@ function setVolume(v) {
   currentVolume = v / 100;
   document.getElementById('volSlider').value = v;
   knobValEl.textContent = v + '%';
-  if (audio) audio.volume = currentVolume;
+  if (audio) audio.volume = Math.pow(currentVolume, 2);
   drawKnob(v);
 }
 
@@ -292,7 +292,7 @@ function tryStream(st, card, idx) {
   audio = new Audio();
   // NOTE: Do NOT set crossOrigin here. Setting crossOrigin='anonymous'
   // triggers CORS preflight and blocks streams without ACAO:* header.
-  audio.volume  = currentVolume;
+  audio.volume  = Math.pow(currentVolume, 2);
   audio.preload = 'none';
 
   // Skip HLS on browsers without native support (Chrome, Firefox)

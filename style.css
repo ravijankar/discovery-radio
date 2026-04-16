@@ -433,9 +433,9 @@ body::after {
   position: absolute;
   bottom: -22px; left: 50%;
   transform: translateX(-50%);
-  font-size: 0.45rem;
+  font-size: 1.1rem;
   letter-spacing: 0.5em;
-  color: var(--white-faint);
+  color: var(--white-dim);
   white-space: nowrap;
   text-transform: uppercase;
 }
@@ -450,9 +450,9 @@ body::after {
 }
 
 .recv-label {
-  font-size: 0.45rem;
+  font-size: 0.75rem;
   letter-spacing: 0.55em;
-  color: var(--white-faint);
+  color: var(--white-dim);
   text-transform: uppercase;
   margin-bottom: 0.5rem;
 }
@@ -501,9 +501,9 @@ body::after {
 }
 
 .meter-label {
-  font-size: 0.45rem;
+  font-size: 0.75rem;
   letter-spacing: 0.35em;
-  color: var(--white-faint);
+  color: var(--white-dim);
   text-transform: uppercase;
 }
 
@@ -540,9 +540,9 @@ body::after {
 }
 
 .vu-label {
-  font-size: 0.45rem;
+  font-size: 0.75rem;
   letter-spacing: 0.4em;
-  color: var(--white-faint);
+  color: var(--white-dim);
   text-transform: uppercase;
   margin-bottom: 0.6rem;
 }
@@ -578,6 +578,14 @@ body::after {
   color: var(--white-faint);
   text-align: center;
   margin-top: 0.3rem;
+}
+
+.ctrl-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.5em;
+  color: var(--white-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
 }
 
 /* ── VOLUME KNOB ──────────────────────────────── */
