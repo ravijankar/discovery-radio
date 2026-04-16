@@ -226,7 +226,7 @@ document.getElementById('volSlider').addEventListener('input', function () {
   setVolume(parseInt(this.value));
 });
 
-drawKnob(50);
+setVolume(50);
 
 // ── NOW PLAYING ──────────────────────────────
 function startNowPlaying(st) {

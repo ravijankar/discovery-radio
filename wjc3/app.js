@@ -208,7 +208,7 @@ knobCanvas.addEventListener('wheel', e => {
   setVolume(Math.round(currentVolume * 100) - Math.sign(e.deltaY) * 3);
 }, { passive: false });
 document.getElementById('volSlider').addEventListener('input', function () { setVolume(parseInt(this.value)); });
-drawKnob(50);
+setVolume(50);
 
 // ── FORMAT TIME ──────────────────────────────
 function fmtTime(s) {
