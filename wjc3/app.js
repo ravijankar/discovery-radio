@@ -15,7 +15,7 @@ const STATION = {
 // ── STATE ────────────────────────────────────
 let audio = null;
 let playing = false;
-let currentVolume = 0.8;
+let currentVolume = 0.5;
 let nowPlayingTimer = null;
 let progressTimer = null;
 let npElapsedBase = 0;
@@ -208,7 +208,7 @@ knobCanvas.addEventListener('wheel', e => {
   setVolume(Math.round(currentVolume * 100) - Math.sign(e.deltaY) * 3);
 }, { passive: false });
 document.getElementById('volSlider').addEventListener('input', function () { setVolume(parseInt(this.value)); });
-drawKnob(80);
+drawKnob(50);
 
 // ── FORMAT TIME ──────────────────────────────
 function fmtTime(s) {

@@ -6,7 +6,7 @@
 // ── STATE ───────────────────────────────────
 let audio = null, currentStation = null, playing = false;
 let streamIndex = 0;
-let currentVolume = 0.8;
+let currentVolume = 0.5;
 let nowPlayingTimer = null;
 
 // ── DOM REFS ─────────────────────────────────
@@ -226,7 +226,7 @@ document.getElementById('volSlider').addEventListener('input', function () {
   setVolume(parseInt(this.value));
 });
 
-drawKnob(80);
+drawKnob(50);
 
 // ── NOW PLAYING ──────────────────────────────
 function startNowPlaying(st) {
