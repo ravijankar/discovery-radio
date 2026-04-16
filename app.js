@@ -98,10 +98,10 @@ function addLog(msg, cls = '') {
 const knobCanvas  = document.getElementById('volKnob');
 const knobCtx     = knobCanvas.getContext('2d');
 const knobValEl   = document.getElementById('volKnobVal');
-const MIN_ANGLE   = 120;
+const MIN_ANGLE   = 225;
 
 function knobAngleFromVol(v) {
-  return MIN_ANGLE + (v / 100) * 300;
+  return MIN_ANGLE + (v / 100) * 270;
 }
 
 function drawKnob(vol) {
@@ -113,7 +113,7 @@ function drawKnob(vol) {
   ctx.clearRect(0, 0, c.width, c.height);
 
   const startRad = MIN_ANGLE * Math.PI / 180;
-  const endRad   = (MIN_ANGLE + 300) * Math.PI / 180;
+  const endRad   = (MIN_ANGLE + 270) * Math.PI / 180;
   const valRad   = knobAngleFromVol(vol) * Math.PI / 180;
 
   // Track (dim)
@@ -134,7 +134,7 @@ function drawKnob(vol) {
 
   // Tick marks
   for (let i = 0; i <= 10; i++) {
-    const a  = (MIN_ANGLE + (i / 10) * 300) * Math.PI / 180;
+    const a  = (MIN_ANGLE + (i / 10) * 270) * Math.PI / 180;
     const ir = r - 7;
     const or = r - 2;
     ctx.beginPath();

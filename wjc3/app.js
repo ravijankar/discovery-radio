@@ -115,7 +115,7 @@ function animateMeters(on) {
 // ── VOLUME KNOB ──────────────────────────────
 const knobCanvas = document.getElementById('volKnob');
 const knobCtx    = knobCanvas.getContext('2d');
-const MIN_ANGLE  = 120;
+const MIN_ANGLE  = 225;
 
 function drawKnob(vol) {
   const c = knobCanvas;
@@ -124,8 +124,8 @@ function drawKnob(vol) {
   knobCtx.clearRect(0, 0, c.width, c.height);
 
   const startRad = MIN_ANGLE * Math.PI / 180;
-  const endRad   = (MIN_ANGLE + 300) * Math.PI / 180;
-  const valRad   = (MIN_ANGLE + (vol / 100) * 300) * Math.PI / 180;
+  const endRad   = (MIN_ANGLE + 270) * Math.PI / 180;
+  const valRad   = (MIN_ANGLE + (vol / 100) * 270) * Math.PI / 180;
 
   knobCtx.beginPath();
   knobCtx.arc(cx, cy, r, startRad, endRad, false);
@@ -140,7 +140,7 @@ function drawKnob(vol) {
   knobCtx.stroke();
 
   for (let i = 0; i <= 10; i++) {
-    const a = (MIN_ANGLE + (i / 10) * 300) * Math.PI / 180;
+    const a = (MIN_ANGLE + (i / 10) * 270) * Math.PI / 180;
     knobCtx.beginPath();
     knobCtx.moveTo(cx + Math.cos(a) * (r - 7), cy + Math.sin(a) * (r - 7));
     knobCtx.lineTo(cx + Math.cos(a) * (r - 2), cy + Math.sin(a) * (r - 2));
