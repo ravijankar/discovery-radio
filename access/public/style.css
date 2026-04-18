@@ -1,0 +1,330 @@
+/* ═══════════════════════════════════════════════════════
+   DISCOVERY ONE — ACCESS CONTROL SUBSYSTEM
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --void:        #000000;
+  --panel:       #080808;
+  --panel2:      #0e0e0e;
+  --border:      #2a2a2a;
+  --border2:     #1a1a1a;
+  --white:       #e8e8e8;
+  --white-dim:   #888888;
+  --white-faint: #333333;
+  --hal-red:     #cc1111;
+  --hal-glow:    #ff2222;
+  --hal-outer:   #660000;
+  --amber:       #d4820a;
+  --amber-dim:   #7a4a05;
+  --green:       #22aa44;
+  --green-dim:   #0a3318;
+  --grid:        rgba(255,255,255,0.03);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { background: var(--void); font-size: 16px; }
+
+body {
+  background: var(--void);
+  color: var(--white);
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── MASTHEAD ─────────────────────────────────── */
+.masthead {
+  border-bottom: 1px solid var(--border);
+  padding: 1.2rem 2rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.masthead-left {
+  font-family: 'Michroma', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.35em;
+  color: var(--white-dim);
+  line-height: 1.9;
+  text-transform: uppercase;
+}
+
+.masthead-center { text-align: center; }
+
+.masthead-title {
+  font-family: 'Michroma', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.55em;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.masthead-sub {
+  font-size: 0.5rem;
+  letter-spacing: 0.5em;
+  color: var(--white-dim);
+  text-transform: uppercase;
+}
+
+.masthead-right {
+  text-align: right;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--white-dim);
+  line-height: 1.9;
+}
+
+.status-ok  { color: var(--green); }
+.status-err { color: var(--hal-glow); }
+
+/* ── HAL EYE ──────────────────────────────────── */
+.hal-eye {
+  width: 48px; height: 48px;
+  margin: 0 auto 0.5rem;
+}
+
+/* ── MAIN CONTAINER ───────────────────────────── */
+.container {
+  max-width: 860px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+/* ── PANEL ────────────────────────────────────── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-title {
+  font-family: 'Michroma', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.5em;
+  color: var(--white-dim);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border2);
+}
+
+/* ── FORM ELEMENTS ────────────────────────────── */
+.field {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.field label {
+  font-size: 0.55rem;
+  letter-spacing: 0.4em;
+  color: var(--white-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+  min-width: 5rem;
+}
+
+input[type=text],
+input[type=password] {
+  background: var(--void);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--white);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+  width: 100%;
+  outline: none;
+  letter-spacing: 0.05em;
+}
+
+input[type=text]:focus,
+input[type=password]:focus {
+  border-bottom-color: var(--amber);
+}
+
+/* ── BUTTONS ──────────────────────────────────── */
+.btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--white-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn:hover { border-color: var(--amber); color: var(--amber); }
+
+.btn-primary {
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+.btn-primary:hover { border-color: var(--amber); }
+
+.btn-danger { border-color: #440000; color: #884444; }
+.btn-danger:hover { border-color: var(--hal-glow); color: var(--hal-glow); }
+
+.btn-small {
+  font-size: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  letter-spacing: 0.3em;
+}
+
+/* ── INVITE TABLE ─────────────────────────────── */
+.invite-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+
+.invite-table th {
+  font-size: 0.56rem;
+  letter-spacing: 0.5em;
+  color: var(--white-faint);
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0 0 0.75rem;
+  border-bottom: 1px solid var(--border2);
+}
+
+.invite-table td {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border2);
+  color: var(--white-dim);
+  vertical-align: middle;
+}
+
+.invite-table td.label { color: var(--white); }
+
+.invite-table td.token {
+  font-size: 0.6rem;
+  color: var(--white-faint);
+  letter-spacing: 0.08em;
+}
+
+.invite-table td.actions { text-align: right; }
+
+.badge {
+  font-size: 0.56rem;
+  letter-spacing: 0.35em;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid;
+  text-transform: uppercase;
+}
+
+.badge-active  { color: var(--green);    border-color: var(--green-dim); }
+.badge-revoked { color: #555;            border-color: #2a2a2a; }
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  color: var(--white-faint);
+  text-transform: uppercase;
+}
+
+/* ── FLASH MESSAGE ────────────────────────────── */
+.flash {
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  padding: 0.5rem 0;
+  min-height: 1.5rem;
+}
+.flash-ok  { color: var(--green); }
+.flash-err { color: var(--hal-glow); }
+
+/* ── LOGOUT ───────────────────────────────────── */
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--border2);
+  background: var(--panel);
+}
+
+/* ── LISTENER PAGE ────────────────────────────── */
+.listen-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.listen-eye {
+  width: 80px; height: 80px;
+  margin-bottom: 0.5rem;
+}
+
+.listen-title {
+  font-family: 'Michroma', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.5em;
+  color: var(--white);
+  text-transform: uppercase;
+}
+
+.listen-sub {
+  font-size: 0.55rem;
+  letter-spacing: 0.5em;
+  color: var(--white-dim);
+  text-transform: uppercase;
+}
+
+.listen-status {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--amber);
+  min-height: 1.4rem;
+}
+
+audio {
+  display: none;
+}
+
+.btn-tune {
+  font-size: 0.7rem;
+  padding: 0.75rem 2rem;
+  letter-spacing: 0.5em;
+  border-color: var(--amber-dim);
+  color: var(--amber);
+}
+.btn-tune:hover { border-color: var(--amber); }
+.btn-tune.playing { border-color: var(--green-dim); color: var(--green); }
+.btn-tune.playing:hover { border-color: var(--green); }
+
+.error-state {
+  color: var(--hal-glow);
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}

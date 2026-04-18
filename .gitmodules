@@ -1,0 +1,6 @@
+[submodule "broadcast/audio-bulletin"]
+	path = broadcast/audio-bulletin
+	url = https://github.com/ravijankar/audio_bulletin.git
+[submodule "clients/discovery-radio"]
+	path = clients/discovery-radio
+	url = git@github.com:ravijankar/discovery-radio.git

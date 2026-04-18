@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discovery Comms — Access Control</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Michroma&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-left">
+    SPACECRAFT: DISCOVERY ONE<br>
+    SYSTEM: ACCESS CONTROL<br>
+    UNIT: HAL 9000 SERIES IV
+  </div>
+  <div class="masthead-center">
+    <div class="hal-eye">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#111"/>
+        <circle cx="50" cy="50" r="36" fill="#330000"/>
+        <circle cx="50" cy="50" r="26" fill="#cc1111"/>
+        <circle cx="50" cy="50" r="16" fill="#ff2222" opacity=".9"/>
+        <circle cx="50" cy="50" r="8"  fill="#ffffff" opacity=".15"/>
+        <circle cx="44" cy="44" r="4"  fill="#ffffff" opacity=".25"/>
+      </svg>
+    </div>
+    <div class="masthead-title">Access Control</div>
+    <div class="masthead-sub">Listener Authorization · Subsystem 7</div>
+  </div>
+  <div class="masthead-right" id="statusLine">
+    &nbsp;
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginView" style="display:none">
+  <div class="container" style="max-width:400px; margin-top:4rem;">
+    <div class="panel">
+      <div class="panel-title">Authentication Required</div>
+      <form id="loginForm">
+        <div class="field" style="margin-bottom:1.2rem">
+          <label>Access Code</label>
+          <input type="password" id="passwordInput" autocomplete="current-password" autofocus>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem">
+          <div class="flash" id="loginFlash"></div>
+          <button type="submit" class="btn btn-primary">Authenticate</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminView" style="display:none">
+  <div class="topbar">
+    <button class="btn btn-small" id="logoutBtn">Logout</button>
+  </div>
+  <div class="container">
+
+    <!-- Create invite -->
+    <div class="panel">
+      <div class="panel-title">Issue Listener Access</div>
+      <form id="createForm">
+        <div class="field" style="margin-bottom:1rem">
+          <label>Label</label>
+          <input type="text" id="labelInput" placeholder="e.g. CREW MEMBER POOLE" autocomplete="off">
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div class="flash" id="createFlash"></div>
+          <button type="submit" class="btn btn-primary">Generate Link</button>
+        </div>
+      </form>
+      <!-- Copy area (shown after creation) -->
+      <div id="newLinkArea" style="display:none; margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border2)">
+        <div style="font-size:0.5rem;letter-spacing:0.45em;color:var(--white-faint);text-transform:uppercase;margin-bottom:0.5rem">Listener URL</div>
+        <div style="display:flex;gap:0.75rem;align-items:center">
+          <code id="newLinkDisplay" style="font-size:0.7rem;color:var(--amber);word-break:break-all;flex:1"></code>
+          <button class="btn btn-small" id="copyBtn">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite list -->
+    <div class="panel">
+      <div class="panel-title">Active Authorizations</div>
+      <div id="inviteList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const origin = location.origin;
+
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin' };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(path, opts);
+  return { ok: r.ok, status: r.status, data: await r.json().catch(() => null) };
+}
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function renderInvites(invites) {
+  const el = document.getElementById('inviteList');
+  if (!invites.length) {
+    el.innerHTML = '<div class="empty-state">No authorizations issued</div>';
+    return;
+  }
+  const rows = invites.map(inv => `
+    <tr data-id="${inv.id}">
+      <td class="label">${escHtml(inv.label)}</td>
+      <td class="token">${inv.token.slice(0,12)}…</td>
+      <td><span class="badge ${inv.revoked_at ? 'badge-revoked' : 'badge-active'}">${inv.revoked_at ? 'Revoked' : 'Active'}</span></td>
+      <td style="color:var(--white-faint);font-size:0.6rem">${fmtDate(inv.last_used_at)}</td>
+      <td class="actions">
+        ${!inv.revoked_at ? `<button class="btn btn-small btn-danger revoke-btn" data-id="${inv.id}">Revoke</button>` : ''}
+        <button class="btn btn-small copy-link-btn" data-token="${inv.token}" style="margin-left:0.4rem">Copy Link</button>
+      </td>
+    </tr>
+  `).join('');
+  el.innerHTML = `
+    <table class="invite-table">
+      <thead><tr>
+        <th>Label</th><th>Token</th><th>Status</th><th>Last Tuned</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  el.querySelectorAll('.revoke-btn').forEach(btn => {
+    btn.addEventListener('click', () => revokeInvite(btn.dataset.id));
+  });
+  el.querySelectorAll('.copy-link-btn').forEach(btn => {
+    btn.addEventListener('click', () => copyLink(btn.dataset.token, btn));
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyLink(token, btn) {
+  const url = `${origin}/listen?token=${token}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+async function loadInvites() {
+  const { ok, data } = await api('GET', '/api/invites');
+  if (ok) renderInvites(data);
+}
+
+async function revokeInvite(id) {
+  const { ok } = await api('DELETE', `/api/invites/${id}`);
+  if (ok) loadInvites();
+}
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const flash = document.getElementById('loginFlash');
+  const { ok } = await api('POST', '/api/login', { password: document.getElementById('passwordInput').value });
+  if (ok) {
+    showAdmin();
+  } else {
+    flash.textContent = 'Access denied';
+    flash.className = 'flash flash-err';
+  }
+});
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await api('POST', '/api/logout');
+  showLogin();
+});
+
+// Create invite
+document.getElementById('createForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const label = document.getElementById('labelInput').value.trim();
+  const flash = document.getElementById('createFlash');
+  if (!label) { flash.textContent = 'Label required'; flash.className = 'flash flash-err'; return; }
+
+  const { ok, data } = await api('POST', '/api/invites', { label });
+  if (ok) {
+    flash.textContent = '';
+    document.getElementById('labelInput').value = '';
+    const url = `${origin}/listen?token=${data.token}`;
+    document.getElementById('newLinkDisplay').textContent = url;
+    document.getElementById('newLinkArea').style.display = 'block';
+    loadInvites();
+  } else {
+    flash.textContent = 'Failed to create';
+    flash.className = 'flash flash-err';
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const url = document.getElementById('newLinkDisplay').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+});
+
+function showLogin() {
+  document.getElementById('loginView').style.display = 'block';
+  document.getElementById('adminView').style.display = 'none';
+  document.getElementById('statusLine').innerHTML = '<span class="status-err">● LOCKED</span>';
+  document.getElementById('passwordInput').focus();
+}
+
+function showAdmin() {
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('adminView').style.display = 'block';
+  document.getElementById('statusLine').innerHTML = '<span class="status-ok">● AUTHENTICATED</span>';
+  loadInvites();
+}
+
+// Boot
+(async () => {
+  const { data } = await api('GET', '/api/me');
+  if (data && data.authenticated) showAdmin(); else showLogin();
+})();
+</script>
+</body>
+</html>

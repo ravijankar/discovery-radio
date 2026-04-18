@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Discovery Comms — Tune In</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Michroma&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-left">
+    SPACECRAFT: DISCOVERY ONE<br>
+    SYSTEM: AUDIO RECEPTION<br>
+    UNIT: HAL 9000 SERIES IV
+  </div>
+  <div class="masthead-center">
+    <div class="masthead-title">Discovery Comms</div>
+    <div class="masthead-sub">Authorized Listener Access</div>
+  </div>
+  <div class="masthead-right" id="statusLine">
+    &nbsp;
+  </div>
+</div>
+
+<div class="container">
+  <div class="listen-center" id="mainArea">
+
+    <!-- Error state (hidden by default) -->
+    <div id="errorState" style="display:none">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="listen-eye">
+        <circle cx="50" cy="50" r="48" fill="#111"/>
+        <circle cx="50" cy="50" r="36" fill="#1a0000"/>
+        <circle cx="50" cy="50" r="26" fill="#440000"/>
+        <circle cx="50" cy="50" r="16" fill="#660000" opacity=".9"/>
+        <circle cx="50" cy="50" r="8"  fill="#ffffff" opacity=".05"/>
+      </svg>
+      <div class="error-state">Authorization Failed</div>
+      <div class="listen-sub" style="margin-top:0.5rem">This link is invalid or has been revoked.</div>
+    </div>
+
+    <!-- Player (shown on valid token) -->
+    <div id="playerState" style="display:none">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="listen-eye">
+        <circle cx="50" cy="50" r="48" fill="#111"/>
+        <circle cx="50" cy="50" r="36" fill="#330000"/>
+        <circle cx="50" cy="50" r="26" fill="#cc1111"/>
+        <circle cx="50" cy="50" r="16" fill="#ff2222" opacity=".9"/>
+        <circle cx="50" cy="50" r="8"  fill="#ffffff" opacity=".15"/>
+        <circle cx="44" cy="44" r="4"  fill="#ffffff" opacity=".25"/>
+      </svg>
+      <div class="listen-title">Discovery Comms</div>
+      <div class="listen-sub">Live Broadcast · Authorized Access</div>
+      <div class="listen-status" id="listenStatus">STANDBY</div>
+      <button class="btn btn-tune" id="tuneBtn">Tune In</button>
+      <audio id="audioEl" preload="none"></audio>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const token = params.get('token');
+
+const statusLine  = document.getElementById('statusLine');
+const listenStatus = document.getElementById('listenStatus');
+const tuneBtn     = document.getElementById('tuneBtn');
+const audio       = document.getElementById('audioEl');
+
+function showError() {
+  document.getElementById('errorState').style.display = 'block';
+  document.getElementById('playerState').style.display = 'none';
+  statusLine.innerHTML = '<span class="status-err">● ACCESS DENIED</span>';
+}
+
+function showPlayer() {
+  document.getElementById('errorState').style.display = 'none';
+  document.getElementById('playerState').style.display = 'block';
+  statusLine.innerHTML = '<span class="status-ok">● AUTHORIZED</span>';
+}
+
+if (!token) {
+  showError();
+} else {
+  // Validate token by checking auth endpoint directly
+  fetch(`/auth/check?token=${encodeURIComponent(token)}`)
+    .then(r => {
+      if (r.ok) showPlayer(); else showError();
+    })
+    .catch(() => showError());
+}
+
+let playing = false;
+
+tuneBtn.addEventListener('click', async () => {
+  if (playing) {
+    audio.pause();
+    audio.src = '';
+    playing = false;
+    tuneBtn.textContent = 'Tune In';
+    tuneBtn.classList.remove('playing');
+    listenStatus.textContent = 'STANDBY';
+    statusLine.innerHTML = '<span class="status-ok">● AUTHORIZED</span>';
+    return;
+  }
+
+  listenStatus.textContent = 'CONNECTING…';
+  tuneBtn.textContent = 'Connecting…';
+
+  try {
+    const cfg = await fetch('/config.json').then(r => r.json());
+    if (!cfg.streamUrl) throw new Error('no stream configured');
+    const sep = cfg.streamUrl.includes('?') ? '&' : '?';
+    audio.src = `${cfg.streamUrl}${sep}token=${encodeURIComponent(token)}`;
+    await audio.play();
+    playing = true;
+    tuneBtn.textContent = 'Tuned In · Stop';
+    tuneBtn.classList.add('playing');
+    listenStatus.textContent = '● ON AIR';
+    statusLine.innerHTML = '<span class="status-ok">● RECEIVING</span>';
+  } catch (err) {
+    listenStatus.textContent = 'CONNECTION FAILED';
+    tuneBtn.textContent = 'Retry';
+    statusLine.innerHTML = '<span class="status-err">● SIGNAL LOST</span>';
+  }
+});
+
+audio.addEventListener('ended',  () => { playing = false; tuneBtn.textContent = 'Tune In'; tuneBtn.classList.remove('playing'); listenStatus.textContent = 'STANDBY'; });
+audio.addEventListener('error',  () => { playing = false; tuneBtn.textContent = 'Retry';   tuneBtn.classList.remove('playing'); listenStatus.textContent = 'CONNECTION FAILED'; });
+audio.addEventListener('waiting', () => { listenStatus.textContent = 'BUFFERING…'; });
+audio.addEventListener('playing', () => { listenStatus.textContent = '● ON AIR'; });
+</script>
+</body>
+</html>
