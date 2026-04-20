@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    DISCOVERY ONE — AUDIO RECEPTION SYSTEM
-   UNIT: HAL 9000 / AUDIO SUBSYSTEM 4
+   UNIT: PHIL 9000 / AUDIO SUBSYSTEM 4
    MISSION ELAPSED: CONTINUOUS
    ═══════════════════════════════════════════════════════ */
 
@@ -13,9 +13,9 @@
   --white:      #e8e8e8;
   --white-dim:  #888888;
   --white-faint:#333333;
-  --hal-red:    #cc1111;
-  --hal-glow:   #ff2222;
-  --hal-outer:  #660000;
+  --phil-red:    #cc1111;
+  --phil-glow:   #ff2222;
+  --phil-outer:  #660000;
   --amber:      #d4820a;
   --amber-dim:  #7a4a05;
   --green:      #22aa44;
@@ -207,7 +207,7 @@ body::after {
 }
 
 .station-item.active .row-num {
-  color: var(--hal-red);
+  color: var(--phil-red);
   background: rgba(204,17,17,0.05);
 }
 
@@ -230,8 +230,8 @@ body::after {
 .tx-dot {
   width: 4px; height: 4px;
   border-radius: 50%;
-  background: var(--hal-red);
-  box-shadow: 0 0 6px var(--hal-red);
+  background: var(--phil-red);
+  box-shadow: 0 0 6px var(--phil-red);
   flex-shrink: 0;
   animation: txpulse 1s ease infinite;
   display: none;
@@ -340,8 +340,8 @@ body::after {
   flex-direction: column;
 }
 
-/* HAL EYE + NOW PLAYING */
-.hal-section {
+/* PHIL EYE + NOW PLAYING */
+.phil-section {
   padding: 2rem 1.5rem 1.5rem;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -350,13 +350,13 @@ body::after {
   gap: 1.5rem;
 }
 
-.hal-eye-wrap {
+.phil-eye-wrap {
   position: relative;
   width: 110px; height: 110px;
   cursor: pointer;
 }
 
-.hal-eye {
+.phil-eye {
   width: 110px; height: 110px;
   border-radius: 50%;
   background: radial-gradient(
@@ -378,7 +378,7 @@ body::after {
   transition: box-shadow 0.3s;
 }
 
-.hal-eye::before {
+.phil-eye::before {
   content: '';
   position: absolute;
   top: 18%; left: 22%;
@@ -389,7 +389,7 @@ body::after {
   filter: blur(3px);
 }
 
-.hal-ring {
+.phil-ring {
   position: absolute;
   inset: -14px;
   border-radius: 50%;
@@ -398,38 +398,38 @@ body::after {
   border-left-color: #440000;
 }
 
-.hal-ticks {
+.phil-ticks {
   position: absolute;
   inset: -8px;
   border-radius: 50%;
-  animation: halring 30s linear infinite;
+  animation: philring 30s linear infinite;
 }
 
-@keyframes halring { to { transform: rotate(360deg); } }
+@keyframes philring { to { transform: rotate(360deg); } }
 
-.hal-ticks::before, .hal-ticks::after {
+.phil-ticks::before, .phil-ticks::after {
   content: '';
   position: absolute;
   background: #3a0000;
 }
 
 /* Playing state */
-.hal-eye-wrap.playing .hal-eye {
+.phil-eye-wrap.playing .phil-eye {
   box-shadow:
     0 0 0 6px #2a0000,
     0 0 0 7px #3a0000,
     0 0 50px rgba(255,30,10,0.6),
     0 0 100px rgba(200,0,0,0.3),
     inset 0 2px 8px rgba(255,120,80,0.4);
-  animation: halpulse 3s ease infinite;
+  animation: philpulse 3s ease infinite;
 }
 
-@keyframes halpulse {
+@keyframes philpulse {
   0%,100% { box-shadow: 0 0 0 6px #2a0000, 0 0 0 7px #3a0000, 0 0 50px rgba(255,30,10,0.6), 0 0 100px rgba(200,0,0,0.3); }
   50%     { box-shadow: 0 0 0 6px #2a0000, 0 0 0 7px #3a0000, 0 0 70px rgba(255,30,10,0.8), 0 0 120px rgba(200,0,0,0.4); }
 }
 
-.hal-label {
+.phil-label {
   position: absolute;
   bottom: -22px; left: 50%;
   transform: translateX(-50%);
@@ -523,7 +523,7 @@ body::after {
 
 .meter-fill.amber { background: var(--amber); }
 .meter-fill.green { background: var(--green); }
-.meter-fill.red   { background: var(--hal-red); }
+.meter-fill.red   { background: var(--phil-red); }
 
 .meter-val {
   font-family: 'Nova Mono', monospace;
@@ -570,7 +570,7 @@ body::after {
 .vu-bar.l1 { background: var(--green); }
 .vu-bar.l2 { background: var(--green); }
 .vu-bar.l3 { background: var(--amber); }
-.vu-bar.l4 { background: var(--hal-red); }
+.vu-bar.l4 { background: var(--phil-red); }
 
 .vu-ch-label {
   font-size: 0.4rem;
@@ -689,7 +689,7 @@ body::after {
 .console-line.hi   { color: var(--white-dim); }
 .console-line.ok   { color: var(--green); }
 .console-line.warn { color: var(--amber); }
-.console-line.err  { color: var(--hal-red); }
+.console-line.err  { color: var(--phil-red); }
 
 .console-ts { flex-shrink: 0; }
 
@@ -697,10 +697,10 @@ body::after {
 .error-strip {
   padding: 0.5rem 1.5rem;
   background: rgba(204,17,17,0.1);
-  border-top: 1px solid var(--hal-outer);
+  border-top: 1px solid var(--phil-outer);
   font-size: 0.5rem;
   letter-spacing: 0.3em;
-  color: var(--hal-glow);
+  color: var(--phil-glow);
   text-transform: uppercase;
   display: none;
 }
@@ -720,8 +720,8 @@ body::after {
   color: var(--white-faint);
 }
 
-.bottom-bar .hal-ident {
-  color: var(--hal-red);
+.bottom-bar .phil-ident {
+  color: var(--phil-red);
   font-family: 'Michroma', sans-serif;
   font-size: 0.5rem;
   letter-spacing: 0.4em;
@@ -754,7 +754,7 @@ body::after {
   }
   .panel-left { border-right: none; }
 
-  .hal-section {
+  .phil-section {
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -827,23 +827,23 @@ body::after {
     border-bottom: 1px solid var(--border);
   }
 
-  .hal-section {
+  .phil-section {
     padding: 1rem 1rem 0.75rem;
     flex-direction: row;
     align-items: center;
     gap: 1rem;
   }
 
-  .hal-eye-wrap {
+  .phil-eye-wrap {
     width: 72px; height: 72px;
     flex-shrink: 0;
   }
-  .hal-eye {
+  .phil-eye {
     width: 72px; height: 72px;
   }
-  .hal-ring { inset: -10px; }
-  .hal-ticks { inset: -6px; }
-  .hal-label { font-size: 0.38rem; bottom: -18px; }
+  .phil-ring { inset: -10px; }
+  .phil-ticks { inset: -6px; }
+  .phil-label { font-size: 0.38rem; bottom: -18px; }
 
   .now-recv {
     text-align: left;
@@ -984,7 +984,7 @@ body::after {
   padding: 4px 10px;
   cursor: pointer;
 }
-.editor-close:hover { border-color: var(--hal-red); color: var(--hal-red); }
+.editor-close:hover { border-color: var(--phil-red); color: var(--phil-red); }
 
 .editor-body { display: flex; flex: 1; overflow: hidden; }
 
@@ -1040,7 +1040,7 @@ body::after {
   line-height: 1;
   transition: color .15s;
 }
-.eli-delete:hover { color: var(--hal-red); }
+.eli-delete:hover { color: var(--phil-red); }
 
 .eli-drag {
   color: var(--white-dim);
@@ -1129,4 +1129,4 @@ select.editor-input     { cursor: pointer; }
 
 .editor-status     { font-size: 0.5rem; letter-spacing: .15em; min-height: 1.2em; }
 .editor-status.ok  { color: var(--green); }
-.editor-status.err { color: var(--hal-red); }
+.editor-status.err { color: var(--phil-red); }

@@ -28,7 +28,7 @@ Everything runs in the browser. There is no backend.
 
 | File | Role |
 |------|------|
-| `index.html` | App shell and layout — HAL 9000 aesthetic with masthead, clocks, station list, control panel |
+| `index.html` | App shell and layout — PHIL 9000 aesthetic with masthead, clocks, station list, control panel |
 | `stations.js` | `STATIONS` global object — all station metadata and stream URLs |
 | `app.js` | All runtime logic: playback engine, VU/signal meters, volume knob, station editor, clocks |
 | `style.css` | Full dark-terminal visual theme |
@@ -44,7 +44,7 @@ Everything runs in the browser. There is no backend.
 
 **HLS handling**: `.m3u8` streams are skipped on browsers without native HLS support (Chrome, Firefox) and the next source in the array is tried automatically.
 
-**Station persistence**: User edits via the station editor modal are saved to `localStorage` under the key `hal_stations` and loaded on startup before `rebuildMainList()` is called. The built-in `stations.js` data is only used as the default when no saved data exists.
+**Station persistence**: User edits via the station editor modal are saved to `localStorage` under the key `phil_stations` and loaded on startup before `rebuildMainList()` is called. The built-in `stations.js` data is only used as the default when no saved data exists.
 
 **Cache busting**: JS and CSS files are included with `?v=N` query strings in `index.html` (currently `?v=5`). The service worker cache name (`discovery-v4` in `sw.js`) must also be bumped when deploying breaking changes, otherwise the old shell stays cached.
 

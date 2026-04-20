@@ -10,7 +10,7 @@ let currentVolume = 0.5;
 let nowPlayingTimer = null;
 
 // ── DOM REFS ─────────────────────────────────
-const halWrap    = document.getElementById('halWrap');
+const philWrap    = document.getElementById('philWrap');
 const recvStat   = document.getElementById('recvStation');
 const recvDesc   = document.getElementById('recvDesc');
 const freqOut    = document.getElementById('freqReadout');
@@ -259,7 +259,7 @@ function pollNowPlaying(st) {
 // Multi-source fallback: tries each URL in st.streams[] in order.
 // Supports both direct streams and HLS (.m3u8) via native browser HLS.
 
-halWrap.addEventListener('click', () => {
+philWrap.addEventListener('click', () => {
   if (playing) stopAll();
   else if (currentStation) {
     const card = document.querySelector(`[data-call="${currentStation.call}"]`);
@@ -315,7 +315,7 @@ function tryStream(st, card, idx) {
     clearTimeout(connectTimer);
     playing = true;
     streamIndex = idx;
-    halWrap.classList.add('playing');
+    philWrap.classList.add('playing');
     sigOut.textContent  = 'LOCKED';
     modeOut.textContent = 'RECEIVING';
     errorStrip.classList.remove('show');
@@ -346,7 +346,7 @@ function tryStream(st, card, idx) {
 
 function onAllFailed(st) {
   destroyAudio();
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   sigOut.textContent   = 'NONE';
   modeOut.textContent  = 'FAULT';
   recvStat.innerHTML   = 'SIGNAL LOST<span class="recv-cursor"></span>';
@@ -372,7 +372,7 @@ function playStation(st, card) {
   freqOut.textContent  = st.freq;
   sigOut.textContent   = 'ACQUIRING';
   modeOut.textContent  = 'CONNECTING';
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   animateVU(false); animateMeters(false);
   addLog('ACQUIRING: ' + st.call + ' — ' + st.name.substring(0, 25).toUpperCase(), 'hi');
   addLog(st.streams.length + ' SOURCE(S) AVAILABLE — INITIATING LOCK');
@@ -381,7 +381,7 @@ function playStation(st, card) {
 
 function stopAll() {
   destroyAudio();
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   sigOut.textContent   = 'NONE';
   modeOut.textContent  = 'STANDBY';
   recvStat.innerHTML   = 'NO SIGNAL<span class="recv-cursor"></span>';
@@ -464,7 +464,7 @@ setInterval(tick, 1000);
 // ── STATION EDITOR ───────────────────────────
 function loadUserStations() {
   try {
-    const saved = localStorage.getItem('hal_stations');
+    const saved = localStorage.getItem('phil_stations');
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed.us)   STATIONS.us   = parsed.us;
@@ -475,7 +475,7 @@ function loadUserStations() {
 
 function saveUserStations() {
   try {
-    localStorage.setItem('hal_stations', JSON.stringify({ us: STATIONS.us, intl: STATIONS.intl }));
+    localStorage.setItem('phil_stations', JSON.stringify({ us: STATIONS.us, intl: STATIONS.intl }));
   } catch (e) {}
 }
 
@@ -695,7 +695,7 @@ loadUserStations();
 rebuildMainList();
 
 addLog('AUDIO RECEPTION SUBSYSTEM ONLINE', 'ok');
-addLog('HAL 9000 INTERFACE ACTIVE', 'ok');
+addLog('PHIL 9000 INTERFACE ACTIVE', 'ok');
 addLog('CORS-FREE PLAYBACK ENGINE ACTIVE', 'ok');
 addLog((STATIONS.us.length + STATIONS.intl.length) + ' BROADCAST SOURCES INDEXED');
 addLog('AWAITING OPERATOR SELECTION');

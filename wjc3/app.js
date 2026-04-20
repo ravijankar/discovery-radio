@@ -26,7 +26,7 @@ let npDuration = 0;
 let npPollTime = 0;
 
 // ── DOM ──────────────────────────────────────
-const halWrap       = document.getElementById('halWrap');
+const philWrap       = document.getElementById('philWrap');
 const eyeLabel      = document.getElementById('eyeLabel');
 const statusVal     = document.getElementById('statusVal');
 const listenerCount = document.getElementById('listenerCount');
@@ -328,7 +328,7 @@ function tryStream(idx) {
   audio.addEventListener('playing', () => {
     clearTimeout(connectTimer);
     playing = true;
-    halWrap.classList.add('playing');
+    philWrap.classList.add('playing');
     eyeLabel.textContent = 'DISENGAGE TRANSMISSION';
     setStatus('RECEIVING');
     errorStrip.classList.remove('show');
@@ -357,7 +357,7 @@ function tryStream(idx) {
 
 function onAllFailed() {
   destroyAudio();
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   eyeLabel.textContent = 'ENGAGE TRANSMISSION';
   setStatus('FAULT');
   errorStrip.classList.add('show');
@@ -387,7 +387,7 @@ function startPlayback() {
 
 function stopPlayback() {
   destroyAudio();
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   eyeLabel.textContent = 'ENGAGE TRANSMISSION';
   setStatus('STANDBY');
   errorStrip.classList.remove('show');
@@ -410,7 +410,7 @@ function setStatus(s) {
   if (s === 'FAULT')     statusVal.classList.add('fault');
 }
 
-halWrap.addEventListener('click', () => {
+philWrap.addEventListener('click', () => {
   if (playing) stopPlayback();
   else startPlayback();
 });

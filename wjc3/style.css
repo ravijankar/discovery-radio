@@ -12,8 +12,8 @@
   --white:       #e8e8e8;
   --white-dim:   #888888;
   --white-faint: #333333;
-  --hal-red:     #cc1111;
-  --hal-glow:    #ff2222;
+  --phil-red:     #cc1111;
+  --phil-glow:    #ff2222;
   --amber:       #d4820a;
   --amber-dim:   #7a4a05;
   --green:       #22aa44;
@@ -116,7 +116,7 @@ body::after {
 }
 
 .status-val.receiving { color: var(--green); }
-.status-val.fault     { color: var(--hal-red); }
+.status-val.fault     { color: var(--phil-red); }
 
 /* ── CONTENT ─────────────────────────────────────── */
 .content {
@@ -128,7 +128,7 @@ body::after {
   gap: 2rem;
 }
 
-/* ── HAL EYE ─────────────────────────────────────── */
+/* ── PHIL EYE ─────────────────────────────────────── */
 .eye-section {
   display: flex;
   flex-direction: column;
@@ -136,14 +136,14 @@ body::after {
   gap: 1.2rem;
 }
 
-.hal-eye-wrap {
+.phil-eye-wrap {
   position: relative;
   width: 140px; height: 140px;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.hal-eye {
+.phil-eye {
   width: 140px; height: 140px;
   border-radius: 50%;
   background: radial-gradient(
@@ -164,7 +164,7 @@ body::after {
   transition: box-shadow 0.3s;
 }
 
-.hal-eye::before {
+.phil-eye::before {
   content: '';
   position: absolute;
   top: 18%; left: 22%;
@@ -175,7 +175,7 @@ body::after {
   filter: blur(3px);
 }
 
-.hal-ring {
+.phil-ring {
   position: absolute;
   inset: -18px;
   border-radius: 50%;
@@ -184,32 +184,32 @@ body::after {
   border-left-color: #440000;
 }
 
-.hal-ticks {
+.phil-ticks {
   position: absolute;
   inset: -10px;
   border-radius: 50%;
-  animation: halring 30s linear infinite;
+  animation: philring 30s linear infinite;
 }
 
-@keyframes halring { to { transform: rotate(360deg); } }
+@keyframes philring { to { transform: rotate(360deg); } }
 
-.hal-ticks::before, .hal-ticks::after {
+.phil-ticks::before, .phil-ticks::after {
   content: '';
   position: absolute;
   background: #3a0000;
 }
 
-.hal-eye-wrap.playing .hal-eye {
+.phil-eye-wrap.playing .phil-eye {
   box-shadow:
     0 0 0 8px #2a0000,
     0 0 0 9px #3a0000,
     0 0 60px rgba(255,30,10,0.65),
     0 0 120px rgba(200,0,0,0.3),
     inset 0 2px 10px rgba(255,120,80,0.4);
-  animation: halpulse 3s ease infinite;
+  animation: philpulse 3s ease infinite;
 }
 
-@keyframes halpulse {
+@keyframes philpulse {
   0%,100% { box-shadow: 0 0 0 8px #2a0000, 0 0 0 9px #3a0000, 0 0 60px rgba(255,30,10,0.65), 0 0 120px rgba(200,0,0,0.3); }
   50%     { box-shadow: 0 0 0 8px #2a0000, 0 0 0 9px #3a0000, 0 0 80px rgba(255,40,10,0.85), 0 0 140px rgba(200,0,0,0.4); }
 }
@@ -406,7 +406,7 @@ body::after {
 }
 .vu-bar.l1, .vu-bar.l2 { background: var(--green); }
 .vu-bar.l3              { background: var(--amber); }
-.vu-bar.l4              { background: var(--hal-red); }
+.vu-bar.l4              { background: var(--phil-red); }
 
 .vu-ch-label {
   font-size: 1rem;
@@ -477,7 +477,7 @@ body::after {
   display: none;
   border: 1px solid #3a0000;
   background: #0d0000;
-  color: var(--hal-red);
+  color: var(--phil-red);
   padding: 0.6rem 1rem;
   font-size: 0.5rem;
   letter-spacing: 0.3em;
@@ -517,7 +517,7 @@ body::after {
 .log-ts   { color: var(--white-faint); flex-shrink: 0; }
 .log-line.ok   span:last-child { color: var(--green); }
 .log-line.warn span:last-child { color: var(--amber); }
-.log-line.err  span:last-child { color: var(--hal-red); }
+.log-line.err  span:last-child { color: var(--phil-red); }
 .log-line.hi   span:last-child { color: var(--white-dim); }
 
 /* ── RESPONSIVE ──────────────────────────────────── */
