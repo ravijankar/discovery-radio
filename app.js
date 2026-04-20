@@ -98,7 +98,7 @@ function addLog(msg, cls = '') {
 const knobCanvas  = document.getElementById('volKnob');
 const knobCtx     = knobCanvas.getContext('2d');
 const knobValEl   = document.getElementById('volKnobVal');
-const MIN_ANGLE   = 225;
+const MIN_ANGLE   = 135;
 
 function knobAngleFromVol(v) {
   return MIN_ANGLE + (v / 100) * 270;

@@ -118,7 +118,7 @@ function animateMeters(on) {
 // ── VOLUME KNOB ──────────────────────────────
 const knobCanvas = document.getElementById('volKnob');
 const knobCtx    = knobCanvas.getContext('2d');
-const MIN_ANGLE  = 225;
+const MIN_ANGLE  = 135;
 
 function drawKnob(vol) {
   const c = knobCanvas;
