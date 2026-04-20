@@ -695,7 +695,7 @@ loadUserStations();
 rebuildMainList();
 
 addLog('AUDIO RECEPTION SUBSYSTEM ONLINE', 'ok');
-addLog('PHIL 9000 INTERFACE ACTIVE', 'ok');
+addLog('ΦΙΛ9000 INTERFACE ACTIVE', 'ok');
 addLog('CORS-FREE PLAYBACK ENGINE ACTIVE', 'ok');
 addLog((STATIONS.us.length + STATIONS.intl.length) + ' BROADCAST SOURCES INDEXED');
 addLog('AWAITING OPERATOR SELECTION');
