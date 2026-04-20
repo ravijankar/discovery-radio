@@ -245,31 +245,46 @@ function stopNowPlaying() {
   nowPlayingTimer = null;
 }
 
+function updateNpw(artist, title, album, artUrl) {
+  npwArtist.textContent = (artist || '—').toUpperCase();
+  npwTitle.textContent  = (title  || '—').toUpperCase();
+  npwAlbum.textContent  = (album  || '').toUpperCase();
+  const parts = [artist, title].filter(Boolean);
+  if (parts.length) recvDesc.textContent = parts.join(' — ').toUpperCase();
+  if (artUrl) {
+    npwArt.src = artUrl;
+    npwArt.style.display = 'block';
+    npwPlaceholder.style.display = 'none';
+    npwArt.onerror = () => { npwArt.style.display = 'none'; npwPlaceholder.style.display = 'flex'; };
+  } else {
+    npwArt.style.display = 'none';
+    npwPlaceholder.style.display = 'flex';
+  }
+}
+
 function pollNowPlaying(st) {
   if (currentStation?.call !== st.call || !playing) return;
-  fetch(st.nowPlayingUrl)
-    .then(r => r.json())
-    .then(data => {
-      if (currentStation?.call !== st.call) return;
-      const song = data?.now_playing?.song;
-      if (song) {
-        const parts = [song.artist, song.title].filter(Boolean);
-        if (parts.length) recvDesc.textContent = parts.join(' — ').toUpperCase();
-        npwArtist.textContent = (song.artist || '—').toUpperCase();
-        npwTitle.textContent  = (song.title  || '—').toUpperCase();
-        npwAlbum.textContent  = (song.album  || '').toUpperCase();
-        if (song.art) {
-          npwArt.src = song.art;
-          npwArt.style.display = 'block';
-          npwPlaceholder.style.display = 'none';
-          npwArt.onerror = () => { npwArt.style.display = 'none'; npwPlaceholder.style.display = 'flex'; };
-        } else {
-          npwArt.style.display = 'none';
-          npwPlaceholder.style.display = 'flex';
-        }
-      }
-    })
-    .catch(() => {});
+
+  if (st.nowPlayingUrl) {
+    fetch(st.nowPlayingUrl)
+      .then(r => r.json())
+      .then(data => {
+        if (currentStation?.call !== st.call) return;
+        const song = data?.now_playing?.song;
+        if (song) updateNpw(song.artist, song.title, song.album, song.art);
+      })
+      .catch(() => {});
+  } else {
+    const streamUrl = st.streams?.[streamIndex] || st.streams?.[0];
+    if (!streamUrl) return;
+    fetch('/api/icy-meta?url=' + encodeURIComponent(streamUrl))
+      .then(r => r.json())
+      .then(data => {
+        if (currentStation?.call !== st.call) return;
+        if (data.raw) updateNpw(data.artist, data.title, null, data.artUrl || null);
+      })
+      .catch(() => {});
+  }
 }
 
 function clearNpw() {
