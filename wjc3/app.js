@@ -12,6 +12,9 @@ const STATION = {
   nowPlayingUrl: 'https://radio.ravijankar.com/api/nowplaying/jc3_radio',
 };
 
+// ── TOKEN ────────────────────────────────────
+const TOKEN = new URLSearchParams(location.search).get('token') || '';
+
 // ── STATE ────────────────────────────────────
 let audio = null;
 let playing = false;
@@ -305,7 +308,8 @@ function destroyAudio() {
 
 function tryStream(idx) {
   if (idx >= STATION.streams.length) { onAllFailed(); return; }
-  const url = STATION.streams[idx];
+  const base = STATION.streams[idx];
+  const url = TOKEN ? `${base}${base.includes('?') ? '&' : '?'}token=${encodeURIComponent(TOKEN)}` : base;
   addLog('TRYING SOURCE ' + (idx + 1) + '/' + STATION.streams.length + ': ' + url.split('/').pop().substring(0, 35), idx > 0 ? 'warn' : '');
 
   destroyAudio();
