@@ -18,6 +18,11 @@ const sigOut     = document.getElementById('sigReadout');
 const modeOut    = document.getElementById('modeReadout');
 const errorStrip = document.getElementById('errorStrip');
 const consoleOut = document.getElementById('consoleOut');
+const npwArtist  = document.getElementById('npwArtist');
+const npwTitle   = document.getElementById('npwTitle');
+const npwAlbum   = document.getElementById('npwAlbum');
+const npwArt     = document.getElementById('npwArt');
+const npwPlaceholder = document.getElementById('npwPlaceholder');
 
 // ── VU METERS ────────────────────────────────
 const vuL = document.getElementById('vuL');
@@ -250,9 +255,29 @@ function pollNowPlaying(st) {
       if (song) {
         const parts = [song.artist, song.title].filter(Boolean);
         if (parts.length) recvDesc.textContent = parts.join(' — ').toUpperCase();
+        npwArtist.textContent = (song.artist || '—').toUpperCase();
+        npwTitle.textContent  = (song.title  || '—').toUpperCase();
+        npwAlbum.textContent  = (song.album  || '').toUpperCase();
+        if (song.art) {
+          npwArt.src = song.art;
+          npwArt.style.display = 'block';
+          npwPlaceholder.style.display = 'none';
+          npwArt.onerror = () => { npwArt.style.display = 'none'; npwPlaceholder.style.display = 'flex'; };
+        } else {
+          npwArt.style.display = 'none';
+          npwPlaceholder.style.display = 'flex';
+        }
       }
     })
     .catch(() => {});
+}
+
+function clearNpw() {
+  npwArtist.textContent = '—';
+  npwTitle.textContent  = '—';
+  npwAlbum.textContent  = '';
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
 }
 
 // ── PLAYBACK ENGINE ──────────────────────────
@@ -354,6 +379,7 @@ function onAllFailed(st) {
   freqOut.textContent  = '-- -- -- --';
   errorStrip.classList.add('show');
   allOff(); animateVU(false); animateMeters(false);
+  clearNpw();
   stopNowPlaying();
   addLog('ALL SOURCES EXHAUSTED: ' + st.call, 'err');
   addLog('STATION MAY BE OFFLINE OR GEO-RESTRICTED', 'warn');
@@ -374,6 +400,11 @@ function playStation(st, card) {
   modeOut.textContent  = 'CONNECTING';
   philWrap.classList.remove('playing');
   animateVU(false); animateMeters(false);
+  npwArtist.textContent = st.name.toUpperCase();
+  npwTitle.textContent  = 'ACQUIRING SIGNAL';
+  npwAlbum.textContent  = '';
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
   addLog('ACQUIRING: ' + st.call + ' — ' + st.name.substring(0, 25).toUpperCase(), 'hi');
   addLog(st.streams.length + ' SOURCE(S) AVAILABLE — INITIATING LOCK');
   tryStream(st, card, 0);
@@ -389,6 +420,7 @@ function stopAll() {
   freqOut.textContent  = '-- -- -- --';
   errorStrip.classList.remove('show');
   allOff(); animateVU(false); animateMeters(false);
+  clearNpw();
   stopNowPlaying();
   addLog('TRANSMISSION TERMINATED BY OPERATOR', 'warn');
 }
