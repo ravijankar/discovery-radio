@@ -411,7 +411,7 @@ function setStatus(s) {
 }
 
 philWrap.addEventListener('click', () => {
-  if (playing) stopPlayback();
+  if (playing || audio !== null) stopPlayback();
   else startPlayback();
 });
 

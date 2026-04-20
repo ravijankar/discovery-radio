@@ -260,7 +260,7 @@ function pollNowPlaying(st) {
 // Supports both direct streams and HLS (.m3u8) via native browser HLS.
 
 philWrap.addEventListener('click', () => {
-  if (playing) stopAll();
+  if (playing || audio !== null) stopAll();
   else if (currentStation) {
     const card = document.querySelector(`[data-call="${currentStation.call}"]`);
     if (card) tryStream(currentStation, card, 0);
