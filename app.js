@@ -372,13 +372,7 @@ function tryStream(st, card, idx) {
 
   audio.addEventListener('ended', () => {
     if (currentStation?.call !== 'LIBRARY') return;
-    playing = false;
-    philWrap.classList.remove('playing');
-    sigOut.textContent  = 'COMPLETE';
-    modeOut.textContent = 'STANDBY';
-    animateVU(false);
-    animateMeters(false);
-    addLog('TRACK COMPLETE', 'ok');
+    advanceLibraryTrack();
   }, { once: true });
 
   audio.addEventListener('error', () => {
@@ -402,17 +396,23 @@ function tryStream(st, card, idx) {
 function onAllFailed(st) {
   destroyAudio();
   philWrap.classList.remove('playing');
-  sigOut.textContent   = 'NONE';
-  modeOut.textContent  = 'FAULT';
-  recvStat.innerHTML   = 'SIGNAL LOST<span class="recv-cursor"></span>';
-  recvDesc.textContent = 'All sources exhausted — station unavailable';
-  freqOut.textContent  = '-- -- -- --';
+  sigOut.textContent  = 'NONE';
+  modeOut.textContent = 'FAULT';
+  freqOut.textContent = '-- -- -- --';
   errorStrip.classList.add('show');
   allOff(); animateVU(false); animateMeters(false);
   clearNpw();
   stopNowPlaying();
-  addLog('ALL SOURCES EXHAUSTED: ' + st.call, 'err');
-  addLog('STATION MAY BE OFFLINE OR GEO-RESTRICTED', 'warn');
+  if (st.call === 'LIBRARY') {
+    recvStat.innerHTML   = 'LOAD ERROR<span class="recv-cursor"></span>';
+    recvDesc.textContent = 'Track unavailable — check server';
+    addLog('LIBRARY TRACK FAILED TO LOAD', 'err');
+  } else {
+    recvStat.innerHTML   = 'SIGNAL LOST<span class="recv-cursor"></span>';
+    recvDesc.textContent = 'All sources exhausted — station unavailable';
+    addLog('ALL SOURCES EXHAUSTED: ' + st.call, 'err');
+    addLog('STATION MAY BE OFFLINE OR GEO-RESTRICTED', 'warn');
+  }
 }
 
 function playStation(st, card) {
@@ -765,11 +765,13 @@ addLog((STATIONS.us.length + STATIONS.intl.length) + ' BROADCAST SOURCES INDEXED
 addLog('AWAITING OPERATOR SELECTION');
 
 // ── LIBRARY MODE ─────────────────────────────
-let libraryData    = null;
-let activeLibraryItem = null;
+let libraryData         = null;
+let activeLibraryItem   = null;
+let currentLibraryContext = null;
 
 function clearLibraryActive() {
   if (activeLibraryItem) { activeLibraryItem.classList.remove('active'); activeLibraryItem = null; }
+  currentLibraryContext = null;
 }
 
 function formatTrackName(filename) {
@@ -834,34 +836,52 @@ function renderLibrary(artists) {
     filteredAlbums.forEach(album => {
       const albumEl = document.createElement('div');
       albumEl.className = 'lib-album';
+      const elements = buildAlbumTrackItems(artist.name, album.name, album.tracks);
 
       if (album.name) {
         const albumHeader = document.createElement('div');
         albumHeader.className = 'lib-album-header';
-        albumHeader.innerHTML =
-          `<span class="lib-expand-icon">▶</span>` +
-          `<span class="lib-album-name">${album.name.toUpperCase()}</span>` +
-          `<span class="lib-album-meta">${album.tracks.length} TRK</span>`;
+
+        const expandIcon = document.createElement('span');
+        expandIcon.className = 'lib-expand-icon';
+        expandIcon.textContent = autoExpand ? '▼' : '▶';
+
+        const albumName = document.createElement('span');
+        albumName.className = 'lib-album-name';
+        albumName.textContent = album.name.toUpperCase();
+
+        const albumMeta = document.createElement('span');
+        albumMeta.className = 'lib-album-meta';
+        albumMeta.textContent = album.tracks.length + ' TRK';
+
+        const playAllBtn = document.createElement('button');
+        playAllBtn.className = 'lib-play-album-btn';
+        playAllBtn.textContent = '▶ ALL';
+        playAllBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          playLibraryTrack({ artist: artist.name, album: album.name, tracks: album.tracks, trackIdx: 0, elements });
+        });
+
+        albumHeader.appendChild(expandIcon);
+        albumHeader.appendChild(albumName);
+        albumHeader.appendChild(albumMeta);
+        albumHeader.appendChild(playAllBtn);
 
         const trackList = document.createElement('div');
         trackList.className = 'lib-track-list';
         trackList.style.display = autoExpand ? 'block' : 'none';
-        if (autoExpand) albumHeader.querySelector('.lib-expand-icon').textContent = '▼';
-
-        album.tracks.forEach((track, i) =>
-          trackList.appendChild(buildTrackItem(artist.name, album.name, track, i)));
+        elements.forEach(el => trackList.appendChild(el));
 
         albumHeader.addEventListener('click', () => {
           const open = trackList.style.display !== 'none';
           trackList.style.display = open ? 'none' : 'block';
-          albumHeader.querySelector('.lib-expand-icon').textContent = open ? '▶' : '▼';
+          expandIcon.textContent = open ? '▶' : '▼';
         });
 
         albumEl.appendChild(albumHeader);
         albumEl.appendChild(trackList);
       } else {
-        album.tracks.forEach((track, i) =>
-          albumEl.appendChild(buildTrackItem(artist.name, '', track, i)));
+        elements.forEach(el => albumEl.appendChild(el));
       }
 
       body.appendChild(albumEl);
@@ -883,36 +903,73 @@ function renderLibrary(artists) {
   }
 }
 
-function buildTrackItem(artist, album, filename, idx) {
-  const el = document.createElement('div');
-  el.className = 'lib-track';
-  const displayName = formatTrackName(filename);
-  el.innerHTML =
-    `<span class="lib-track-num">${String(idx + 1).padStart(2, '0')}</span>` +
-    `<span class="lib-track-name">${displayName.toUpperCase()}</span>`;
-  el.addEventListener('click', () => playLibraryTrack(artist, album, filename, el));
-  return el;
+function buildAlbumTrackItems(artist, album, tracks) {
+  const elements = [];
+  tracks.forEach((track, i) => {
+    const el = document.createElement('div');
+    el.className = 'lib-track';
+    el.innerHTML =
+      `<span class="lib-track-num">${String(i + 1).padStart(2, '0')}</span>` +
+      `<span class="lib-track-name">${formatTrackName(track).toUpperCase()}</span>`;
+    el.addEventListener('click', () =>
+      playLibraryTrack({ artist, album, tracks, trackIdx: i, elements }));
+    elements.push(el);
+  });
+  return elements;
 }
 
-function playLibraryTrack(artist, album, filename, el) {
+function advanceLibraryTrack() {
+  if (!currentLibraryContext) {
+    playing = false;
+    philWrap.classList.remove('playing');
+    sigOut.textContent  = 'COMPLETE';
+    modeOut.textContent = 'STANDBY';
+    animateVU(false);
+    animateMeters(false);
+    addLog('TRACK COMPLETE', 'ok');
+    return;
+  }
+  const { artist, album, tracks, trackIdx, elements } = currentLibraryContext;
+  const nextIdx = trackIdx + 1;
+  if (nextIdx >= tracks.length) {
+    playing = false;
+    philWrap.classList.remove('playing');
+    sigOut.textContent  = 'COMPLETE';
+    modeOut.textContent = 'STANDBY';
+    animateVU(false);
+    animateMeters(false);
+    if (activeLibraryItem) { activeLibraryItem.classList.remove('active'); activeLibraryItem = null; }
+    currentLibraryContext = null;
+    addLog('ALBUM COMPLETE', 'ok');
+    return;
+  }
+  addLog('ADVANCING: TRACK ' + (nextIdx + 1) + ' OF ' + tracks.length);
+  playLibraryTrack({ artist, album, tracks, trackIdx: nextIdx, elements });
+}
+
+function playLibraryTrack({ artist, album, tracks, trackIdx, elements }) {
+  const filename = tracks[trackIdx];
+  const el       = elements[trackIdx];
+
   const isSame = currentStation?.call === 'LIBRARY' &&
                  activeLibraryItem === el && playing;
   if (isSame) { stopAll(); return; }
 
   clearLibraryActive();
   activeLibraryItem = el;
-  el.classList.add('active');
+  if (el) el.classList.add('active');
+  currentLibraryContext = { artist, album, tracks, trackIdx, elements };
 
-  const parts = [artist, album, filename].filter(Boolean).map(encodeURIComponent);
+  const parts    = [artist, album, filename].filter(Boolean).map(encodeURIComponent);
   const streamUrl = '/api/library/stream/' + parts.join('/');
 
   const st = {
-    call:   'LIBRARY',
-    name:   artist,
-    loc:    album || 'LOCAL LIBRARY',
-    freq:   'FILE',
-    desc:   formatTrackName(filename),
-    tags:   [],
+    call:    'LIBRARY',
+    name:    artist,
+    loc:     album || 'LOCAL LIBRARY',
+    freq:    'FILE',
+    desc:    formatTrackName(filename),
+    tags:    [],
     streams: [streamUrl],
   };
 
