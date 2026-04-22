@@ -700,13 +700,13 @@ body::after {
   color: var(--white);
   padding: 0.5rem 0.7rem;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
   outline: none;
   transition: border-color 0.2s;
 }
 .search-input:focus { border-color: var(--white-faint); }
-.search-input::placeholder { color: #aaaaaa; letter-spacing: 0.15em; }
+.search-input::placeholder { color: #cccccc; letter-spacing: 0.08em; }
 
 /* ── FILTER MATRIX ────────────────────────────── */
 .filter-section {
