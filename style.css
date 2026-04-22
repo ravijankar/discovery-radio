@@ -706,7 +706,7 @@ body::after {
   transition: border-color 0.2s;
 }
 .search-input:focus { border-color: var(--white-faint); }
-.search-input::placeholder { color: var(--white-dim); letter-spacing: 0.15em; }
+.search-input::placeholder { color: #666666; letter-spacing: 0.15em; }
 
 /* ── FILTER MATRIX ────────────────────────────── */
 .filter-section {
