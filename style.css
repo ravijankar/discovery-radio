@@ -1220,7 +1220,7 @@ select.editor-input     { cursor: pointer; }
   background: none;
   border: none;
   border-right: 1px solid var(--border2);
-  color: var(--white-faint);
+  color: #777;
   font-family: 'Michroma', sans-serif;
   font-size: 0.5rem;
   letter-spacing: 0.45em;
@@ -1253,7 +1253,7 @@ select.editor-input     { cursor: pointer; }
 .lib-search-label {
   font-size: 0.45rem;
   letter-spacing: 0.4em;
-  color: var(--white-faint);
+  color: #777;
   white-space: nowrap;
   text-transform: uppercase;
 }
@@ -1264,7 +1264,7 @@ select.editor-input     { cursor: pointer; }
 
 /* Artist */
 .lib-artist {
-  border-bottom: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border);
 }
 
 .lib-artist-header {
@@ -1275,14 +1275,14 @@ select.editor-input     { cursor: pointer; }
   cursor: pointer;
   transition: background 0.12s;
   background: var(--panel);
-  border-bottom: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border);
   user-select: none;
 }
 .lib-artist-header:hover { background: var(--panel2); }
 
 .lib-expand-icon {
   font-size: 0.45rem;
-  color: var(--white-faint);
+  color: #666;
   flex-shrink: 0;
   width: 0.7rem;
   display: inline-block;
@@ -1303,7 +1303,7 @@ select.editor-input     { cursor: pointer; }
 .lib-artist-meta {
   font-size: 0.42rem;
   letter-spacing: 0.2em;
-  color: var(--white-faint);
+  color: #666;
   flex-shrink: 0;
 }
 
@@ -1317,13 +1317,14 @@ select.editor-input     { cursor: pointer; }
   transition: background 0.12s;
   user-select: none;
   border-bottom: 1px solid var(--border2);
+  background: #0a0a0a;
 }
 .lib-album-header:hover { background: var(--panel2); }
 
 .lib-album-name {
   font-size: 0.55rem;
   letter-spacing: 0.15em;
-  color: var(--white-dim);
+  color: #c0c0c0;
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -1334,18 +1335,18 @@ select.editor-input     { cursor: pointer; }
 .lib-album-meta {
   font-size: 0.4rem;
   letter-spacing: 0.2em;
-  color: var(--white-faint);
+  color: #666;
   flex-shrink: 0;
 }
 
 .lib-play-album-btn {
   background: none;
-  border: 1px solid var(--border);
-  color: var(--white-faint);
+  border: 1px solid #555;
+  color: #999;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.38rem;
+  font-size: 0.4rem;
   letter-spacing: 0.2em;
-  padding: 2px 6px;
+  padding: 3px 8px;
   cursor: pointer;
   flex-shrink: 0;
   margin-left: 0.4rem;
@@ -1375,7 +1376,7 @@ select.editor-input     { cursor: pointer; }
 .lib-track-num {
   font-size: 0.42rem;
   letter-spacing: 0.15em;
-  color: var(--white-faint);
+  color: #555;
   flex-shrink: 0;
   font-family: 'Nova Mono', monospace;
   min-width: 1.4rem;
@@ -1386,7 +1387,7 @@ select.editor-input     { cursor: pointer; }
 .lib-track-name {
   font-size: 0.5rem;
   letter-spacing: 0.12em;
-  color: var(--white-dim);
+  color: #b0b0b0;
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -1400,7 +1401,7 @@ select.editor-input     { cursor: pointer; }
   padding: 2rem;
   font-size: 0.5rem;
   letter-spacing: 0.35em;
-  color: var(--white-faint);
+  color: #777;
   text-align: center;
   text-transform: uppercase;
 }
