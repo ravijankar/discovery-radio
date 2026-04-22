@@ -302,8 +302,12 @@ function clearNpw() {
 philWrap.addEventListener('click', () => {
   if (playing || audio !== null) stopAll();
   else if (currentStation) {
-    const card = document.querySelector(`[data-call="${currentStation.call}"]`);
-    if (card) tryStream(currentStation, card, 0);
+    if (currentStation.call === 'LIBRARY') {
+      tryStream(currentStation, null, 0);
+    } else {
+      const card = document.querySelector(`[data-call="${currentStation.call}"]`);
+      if (card) tryStream(currentStation, card, 0);
+    }
   }
 });
 
@@ -366,6 +370,17 @@ function tryStream(st, card, idx) {
     startNowPlaying(st);
   }, { once: true });
 
+  audio.addEventListener('ended', () => {
+    if (currentStation?.call !== 'LIBRARY') return;
+    playing = false;
+    philWrap.classList.remove('playing');
+    sigOut.textContent  = 'COMPLETE';
+    modeOut.textContent = 'STANDBY';
+    animateVU(false);
+    animateMeters(false);
+    addLog('TRACK COMPLETE', 'ok');
+  }, { once: true });
+
   audio.addEventListener('error', () => {
     clearTimeout(connectTimer);
     if (!playing) {
@@ -406,6 +421,7 @@ function playStation(st, card) {
   stopNowPlaying();
   destroyAudio();
   allOff();
+  clearLibraryActive();
   currentStation = st;
   card.classList.add('active');
   recvStat.innerHTML   = st.call + '<span class="recv-cursor"></span>';
@@ -437,6 +453,7 @@ function stopAll() {
   allOff(); animateVU(false); animateMeters(false);
   clearNpw();
   stopNowPlaying();
+  clearLibraryActive();
   addLog('TRANSMISSION TERMINATED BY OPERATOR', 'warn');
 }
 
@@ -742,7 +759,206 @@ loadUserStations();
 rebuildMainList();
 
 addLog('AUDIO RECEPTION SUBSYSTEM ONLINE', 'ok');
-addLog('ΦΙΛ9000 INTERFACE ACTIVE', 'ok');
+addLog('PHIL 9000 INTERFACE ACTIVE', 'ok');
 addLog('CORS-FREE PLAYBACK ENGINE ACTIVE', 'ok');
 addLog((STATIONS.us.length + STATIONS.intl.length) + ' BROADCAST SOURCES INDEXED');
 addLog('AWAITING OPERATOR SELECTION');
+
+// ── LIBRARY MODE ─────────────────────────────
+let libraryData    = null;
+let activeLibraryItem = null;
+
+function clearLibraryActive() {
+  if (activeLibraryItem) { activeLibraryItem.classList.remove('active'); activeLibraryItem = null; }
+}
+
+function formatTrackName(filename) {
+  return filename
+    .replace(/\.[^.]+$/, '')
+    .replace(/_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, '')
+    .replace(/^\d{1,3}[\s\-_.]+/, '')
+    .trim();
+}
+
+async function loadLibrary() {
+  const list = document.getElementById('libraryList');
+  list.innerHTML = '<div class="lib-status">SCANNING MEDIA ARCHIVE...</div>';
+  try {
+    const r = await fetch('/api/library');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    libraryData = await r.json();
+    renderLibrary(libraryData);
+    addLog('ARCHIVE INDEXED: ' + libraryData.length + ' ARTISTS', 'ok');
+  } catch (e) {
+    list.innerHTML = '<div class="lib-status lib-err">ARCHIVE UNAVAILABLE</div>';
+    addLog('LIBRARY FETCH FAILED: ' + e.message, 'err');
+  }
+}
+
+function renderLibrary(artists) {
+  const list = document.getElementById('libraryList');
+  list.innerHTML = '';
+  const query = (document.getElementById('libSearchInput')?.value || '').toLowerCase();
+
+  let rendered = 0;
+  artists.forEach(artist => {
+    const matchesArtist = !query || artist.name.toLowerCase().includes(query);
+    const filteredAlbums = artist.albums.map(album => {
+      const matchesAlbum = matchesArtist || album.name.toLowerCase().includes(query);
+      const filteredTracks = matchesAlbum
+        ? album.tracks
+        : album.tracks.filter(t => formatTrackName(t).toLowerCase().includes(query));
+      return filteredTracks.length ? { ...album, tracks: filteredTracks } : null;
+    }).filter(Boolean);
+
+    if (!filteredAlbums.length) return;
+    rendered++;
+
+    const section = document.createElement('div');
+    section.className = 'lib-artist';
+
+    const totalTracks = filteredAlbums.reduce((n, a) => n + a.tracks.length, 0);
+    const header = document.createElement('div');
+    header.className = 'lib-artist-header';
+    header.innerHTML =
+      `<span class="lib-expand-icon">▶</span>` +
+      `<span class="lib-artist-name">${artist.name.toUpperCase()}</span>` +
+      `<span class="lib-artist-meta">${filteredAlbums.length} ALB · ${totalTracks} TRK</span>`;
+
+    const body = document.createElement('div');
+    body.className = 'lib-artist-body';
+    const autoExpand = !!query;
+    body.style.display = autoExpand ? 'block' : 'none';
+    if (autoExpand) header.querySelector('.lib-expand-icon').textContent = '▼';
+
+    filteredAlbums.forEach(album => {
+      const albumEl = document.createElement('div');
+      albumEl.className = 'lib-album';
+
+      if (album.name) {
+        const albumHeader = document.createElement('div');
+        albumHeader.className = 'lib-album-header';
+        albumHeader.innerHTML =
+          `<span class="lib-expand-icon">▶</span>` +
+          `<span class="lib-album-name">${album.name.toUpperCase()}</span>` +
+          `<span class="lib-album-meta">${album.tracks.length} TRK</span>`;
+
+        const trackList = document.createElement('div');
+        trackList.className = 'lib-track-list';
+        trackList.style.display = autoExpand ? 'block' : 'none';
+        if (autoExpand) albumHeader.querySelector('.lib-expand-icon').textContent = '▼';
+
+        album.tracks.forEach((track, i) =>
+          trackList.appendChild(buildTrackItem(artist.name, album.name, track, i)));
+
+        albumHeader.addEventListener('click', () => {
+          const open = trackList.style.display !== 'none';
+          trackList.style.display = open ? 'none' : 'block';
+          albumHeader.querySelector('.lib-expand-icon').textContent = open ? '▶' : '▼';
+        });
+
+        albumEl.appendChild(albumHeader);
+        albumEl.appendChild(trackList);
+      } else {
+        album.tracks.forEach((track, i) =>
+          albumEl.appendChild(buildTrackItem(artist.name, '', track, i)));
+      }
+
+      body.appendChild(albumEl);
+    });
+
+    header.addEventListener('click', () => {
+      const open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : 'block';
+      header.querySelector('.lib-expand-icon').textContent = open ? '▶' : '▼';
+    });
+
+    section.appendChild(header);
+    section.appendChild(body);
+    list.appendChild(section);
+  });
+
+  if (!rendered) {
+    list.innerHTML = '<div class="lib-status">NO MATCHES</div>';
+  }
+}
+
+function buildTrackItem(artist, album, filename, idx) {
+  const el = document.createElement('div');
+  el.className = 'lib-track';
+  const displayName = formatTrackName(filename);
+  el.innerHTML =
+    `<span class="lib-track-num">${String(idx + 1).padStart(2, '0')}</span>` +
+    `<span class="lib-track-name">${displayName.toUpperCase()}</span>`;
+  el.addEventListener('click', () => playLibraryTrack(artist, album, filename, el));
+  return el;
+}
+
+function playLibraryTrack(artist, album, filename, el) {
+  const isSame = currentStation?.call === 'LIBRARY' &&
+                 activeLibraryItem === el && playing;
+  if (isSame) { stopAll(); return; }
+
+  clearLibraryActive();
+  activeLibraryItem = el;
+  el.classList.add('active');
+
+  const parts = [artist, album, filename].filter(Boolean).map(encodeURIComponent);
+  const streamUrl = '/api/library/stream/' + parts.join('/');
+
+  const st = {
+    call:   'LIBRARY',
+    name:   artist,
+    loc:    album || 'LOCAL LIBRARY',
+    freq:   'FILE',
+    desc:   formatTrackName(filename),
+    tags:   [],
+    streams: [streamUrl],
+  };
+
+  errorStrip.classList.remove('show');
+  stopNowPlaying();
+  destroyAudio();
+  allOff();
+  currentStation = st;
+
+  recvStat.innerHTML   = formatTrackName(filename).toUpperCase() + '<span class="recv-cursor"></span>';
+  recvDesc.textContent = artist.toUpperCase() + (album ? ' — ' + album.toUpperCase() : '');
+  freqOut.textContent  = 'FILE';
+  sigOut.textContent   = 'LOADING';
+  modeOut.textContent  = 'BUFFERING';
+  philWrap.classList.remove('playing');
+  animateVU(false);
+  animateMeters(false);
+
+  npwArtist.textContent = artist.toUpperCase();
+  npwTitle.textContent  = formatTrackName(filename).toUpperCase();
+  npwAlbum.textContent  = album.toUpperCase();
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
+
+  addLog('ACCESSING ARCHIVE: ' + artist.substring(0, 22).toUpperCase(), 'hi');
+  addLog('TRACK: ' + formatTrackName(filename).substring(0, 28).toUpperCase());
+
+  tryStream(st, null, 0);
+}
+
+// Mode toggle
+document.getElementById('modeBroadcastBtn').addEventListener('click', () => {
+  document.getElementById('broadcastPanel').style.display = '';
+  document.getElementById('libraryPanel').style.display   = 'none';
+  document.getElementById('modeBroadcastBtn').classList.add('active');
+  document.getElementById('modeLibraryBtn').classList.remove('active');
+});
+
+document.getElementById('modeLibraryBtn').addEventListener('click', () => {
+  document.getElementById('broadcastPanel').style.display = 'none';
+  document.getElementById('libraryPanel').style.display   = '';
+  document.getElementById('modeLibraryBtn').classList.add('active');
+  document.getElementById('modeBroadcastBtn').classList.remove('active');
+  if (!libraryData) loadLibrary();
+});
+
+document.getElementById('libSearchInput').addEventListener('input', () => {
+  if (libraryData) renderLibrary(libraryData);
+});

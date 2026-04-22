@@ -1204,3 +1204,186 @@ select.editor-input     { cursor: pointer; }
 .editor-status     { font-size: 0.5rem; letter-spacing: .15em; min-height: 1.2em; }
 .editor-status.ok  { color: var(--green); }
 .editor-status.err { color: var(--phil-red); }
+
+/* ═══════════════════════════════════════════════════════
+   MODE TOGGLE
+   ═══════════════════════════════════════════════════════ */
+
+.mode-toggle-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.mode-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border2);
+  color: var(--white-faint);
+  font-family: 'Michroma', sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  padding: 0.6rem 0;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-btn:last-child { border-right: none; }
+.mode-btn:hover { color: var(--white-dim); background: var(--panel2); }
+.mode-btn.active {
+  color: var(--amber);
+  background: rgba(212,130,10,0.06);
+  border-bottom: 2px solid var(--amber);
+}
+
+/* ═══════════════════════════════════════════════════════
+   LIBRARY BROWSER
+   ═══════════════════════════════════════════════════════ */
+
+.lib-search-row {
+  padding: 0.7rem 2rem;
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: var(--panel);
+}
+
+.lib-search-label {
+  font-size: 0.45rem;
+  letter-spacing: 0.4em;
+  color: var(--white-faint);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.library-list {
+  overflow-y: auto;
+}
+
+/* Artist */
+.lib-artist {
+  border-bottom: 1px solid var(--border2);
+}
+
+.lib-artist-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.65rem 1.4rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border2);
+  user-select: none;
+}
+.lib-artist-header:hover { background: var(--panel2); }
+
+.lib-expand-icon {
+  font-size: 0.45rem;
+  color: var(--white-faint);
+  flex-shrink: 0;
+  width: 0.7rem;
+  display: inline-block;
+}
+
+.lib-artist-name {
+  font-family: 'Michroma', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--white);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lib-artist-meta {
+  font-size: 0.42rem;
+  letter-spacing: 0.2em;
+  color: var(--white-faint);
+  flex-shrink: 0;
+}
+
+/* Album */
+.lib-album-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.5rem 1.4rem 0.5rem 2.4rem;
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+  border-bottom: 1px solid var(--border2);
+}
+.lib-album-header:hover { background: var(--panel2); }
+
+.lib-album-name {
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  color: var(--white-dim);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lib-album-meta {
+  font-size: 0.4rem;
+  letter-spacing: 0.2em;
+  color: var(--white-faint);
+  flex-shrink: 0;
+}
+
+/* Track */
+.lib-track {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.45rem 1.4rem 0.45rem 3.4rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border2);
+  transition: background 0.1s;
+}
+.lib-track:hover { background: var(--panel2); }
+.lib-track.active {
+  background: #0b0800;
+  border-left: 3px solid var(--amber);
+}
+
+.lib-track-num {
+  font-size: 0.42rem;
+  letter-spacing: 0.15em;
+  color: var(--white-faint);
+  flex-shrink: 0;
+  font-family: 'Nova Mono', monospace;
+  min-width: 1.4rem;
+  text-align: right;
+}
+.lib-track.active .lib-track-num { color: var(--amber-dim); }
+
+.lib-track-name {
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  color: var(--white-dim);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lib-track.active .lib-track-name { color: var(--amber); }
+
+/* Status / loading states */
+.lib-status {
+  padding: 2rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.35em;
+  color: var(--white-faint);
+  text-align: center;
+  text-transform: uppercase;
+}
+.lib-status.lib-err { color: var(--phil-red); }

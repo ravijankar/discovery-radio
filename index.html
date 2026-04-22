@@ -20,7 +20,7 @@
   <div class="masthead-left">
     SPACECRAFT: DISCOVERY ONE<br>
     MISSION: JUPITER / BEYOND<br>
-    UNIT: ΦΙΛ9000 SERIES IV
+    UNIT: PHIL 9000 SERIES IV
   </div>
   <div class="masthead-center">
     <div class="masthead-title">Audio Reception System</div>
@@ -49,38 +49,59 @@
 <!-- MAIN -->
 <div class="main">
 
-  <!-- LEFT: STATION DIRECTORY -->
+  <!-- LEFT: STATION DIRECTORY / LIBRARY -->
   <div class="panel-left">
-    <!-- Search -->
-    <div style="padding: 0.7rem 2rem; border-bottom: 1px solid var(--border2); display:flex; gap:1rem; align-items:center; background: var(--panel);">
-      <span style="font-size:0.45rem;letter-spacing:0.4em;color:var(--white-faint);white-space:nowrap;text-transform:uppercase;">Query</span>
-      <input type="text" class="search-input" id="searchInput" placeholder="STATION IDENTIFIER / LOCATION / FORMAT"
-             style="border:none;border-bottom:1px solid var(--border);background:transparent;padding:0.3rem 0;">
-    </div>
-    <!-- Filters -->
-    <div style="padding:0.5rem 2rem;border-bottom:1px solid var(--border2);display:flex;gap:3px;background:var(--panel);">
-      <button class="filter-btn active" data-filter="all"       style="flex:1">ALL</button>
-      <button class="filter-btn"        data-filter="jazz"      style="flex:1">JAZZ</button>
-      <button class="filter-btn"        data-filter="classical" style="flex:1">CLAS</button>
-      <button class="filter-btn"        data-filter="world"     style="flex:1">WRLD</button>
-      <button class="filter-btn"        data-filter="eclectic"  style="flex:1">MISC</button>
+
+    <!-- Mode Toggle -->
+    <div class="mode-toggle-bar">
+      <button class="mode-btn active" id="modeBroadcastBtn">BROADCAST</button>
+      <button class="mode-btn"        id="modeLibraryBtn">LIBRARY</button>
     </div>
 
-    <!-- US Stations -->
-    <div class="sec-header">
-      <div class="sec-label">Terrestrial — United States</div>
-      <div class="sec-line"></div>
-      <div class="sec-count" id="usCount">08 SOURCES</div>
-    </div>
-    <ul class="station-list" id="usGrid"></ul>
+    <!-- Broadcast Panel -->
+    <div id="broadcastPanel">
+      <!-- Search -->
+      <div style="padding: 0.7rem 2rem; border-bottom: 1px solid var(--border2); display:flex; gap:1rem; align-items:center; background: var(--panel);">
+        <span style="font-size:0.45rem;letter-spacing:0.4em;color:var(--white-faint);white-space:nowrap;text-transform:uppercase;">Query</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="STATION IDENTIFIER / LOCATION / FORMAT"
+               style="border:none;border-bottom:1px solid var(--border);background:transparent;padding:0.3rem 0;">
+      </div>
+      <!-- Filters -->
+      <div style="padding:0.5rem 2rem;border-bottom:1px solid var(--border2);display:flex;gap:3px;background:var(--panel);">
+        <button class="filter-btn active" data-filter="all"       style="flex:1">ALL</button>
+        <button class="filter-btn"        data-filter="jazz"      style="flex:1">JAZZ</button>
+        <button class="filter-btn"        data-filter="classical" style="flex:1">CLAS</button>
+        <button class="filter-btn"        data-filter="world"     style="flex:1">WRLD</button>
+        <button class="filter-btn"        data-filter="eclectic"  style="flex:1">MISC</button>
+      </div>
 
-    <!-- International -->
-    <div class="sec-header">
-      <div class="sec-label">International Intercept</div>
-      <div class="sec-line"></div>
-      <div class="sec-count" id="intlCount">08 SOURCES</div>
+      <!-- US Stations -->
+      <div class="sec-header">
+        <div class="sec-label">Terrestrial — United States</div>
+        <div class="sec-line"></div>
+        <div class="sec-count" id="usCount">08 SOURCES</div>
+      </div>
+      <ul class="station-list" id="usGrid"></ul>
+
+      <!-- International -->
+      <div class="sec-header">
+        <div class="sec-label">International Intercept</div>
+        <div class="sec-line"></div>
+        <div class="sec-count" id="intlCount">08 SOURCES</div>
+      </div>
+      <ul class="station-list" id="intlGrid"></ul>
     </div>
-    <ul class="station-list" id="intlGrid"></ul>
+
+    <!-- Library Panel -->
+    <div id="libraryPanel" style="display:none">
+      <div class="lib-search-row">
+        <span class="lib-search-label">SEARCH ARCHIVE</span>
+        <input type="text" id="libSearchInput" class="search-input" placeholder="ARTIST / ALBUM / TRACK"
+               style="border:none;border-bottom:1px solid var(--border);background:transparent;padding:0.3rem 0;flex:1;">
+      </div>
+      <div id="libraryList" class="library-list"></div>
+    </div>
+
   </div>
 
   <!-- RIGHT: CONTROL PANEL -->
@@ -92,7 +113,7 @@
         <div class="phil-ring"></div>
         <div class="phil-ticks"></div>
         <div class="phil-eye" id="philEye"></div>
-        <div class="phil-label">ΦΙΛ9000 · AUDIO CTRL</div>
+        <div class="phil-label">PHIL 9000 · AUDIO CTRL</div>
       </div>
       <div class="now-recv">
         <div class="recv-label">Now Receiving</div>
@@ -179,7 +200,7 @@
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <span>DISCOVERY ONE · AUDIO RECEPTION SUBSYSTEM 4 · UNIT PHIL/AR-4</span>
-  <span class="phil-ident">ΦΙΛ9000</span>
+  <span class="phil-ident">PHIL 9000</span>
   <span>I'M SORRY, DAVE. THIS STATION IS NOMINAL.</span>
   <button class="edit-db-btn" id="editDbBtn" title="Edit Station Database">⬡ EDIT DB</button>
 </div>
@@ -245,8 +266,8 @@
   </div>
 </div>
 
-<script src="stations.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="stations.js?v=6"></script>
+<script src="app.js?v=6"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');

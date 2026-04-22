@@ -1,4 +1,4 @@
-const CACHE = 'discovery-v4';
+const CACHE = 'discovery-v5';
 const ASSETS = ['/', '/index.html', '/app.js', '/stations.js', '/style.css', '/favicon.svg'];
 
 self.addEventListener('install', e => {
