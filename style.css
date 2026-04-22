@@ -1220,7 +1220,7 @@ select.editor-input     { cursor: pointer; }
   background: none;
   border: none;
   border-right: 1px solid var(--border2);
-  color: #777;
+  color: #aaa;
   font-family: 'Michroma', sans-serif;
   font-size: 0.5rem;
   letter-spacing: 0.45em;
@@ -1253,7 +1253,7 @@ select.editor-input     { cursor: pointer; }
 .lib-search-label {
   font-size: 0.45rem;
   letter-spacing: 0.4em;
-  color: #777;
+  color: #aaa;
   white-space: nowrap;
   text-transform: uppercase;
 }
@@ -1282,7 +1282,7 @@ select.editor-input     { cursor: pointer; }
 
 .lib-expand-icon {
   font-size: 0.45rem;
-  color: #666;
+  color: #aaa;
   flex-shrink: 0;
   width: 0.7rem;
   display: inline-block;
@@ -1303,7 +1303,7 @@ select.editor-input     { cursor: pointer; }
 .lib-artist-meta {
   font-size: 0.42rem;
   letter-spacing: 0.2em;
-  color: #666;
+  color: #999;
   flex-shrink: 0;
 }
 
@@ -1335,14 +1335,14 @@ select.editor-input     { cursor: pointer; }
 .lib-album-meta {
   font-size: 0.4rem;
   letter-spacing: 0.2em;
-  color: #666;
+  color: #999;
   flex-shrink: 0;
 }
 
 .lib-play-album-btn {
   background: none;
-  border: 1px solid #555;
-  color: #999;
+  border: 1px solid #888;
+  color: #ccc;
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.4rem;
   letter-spacing: 0.2em;
@@ -1376,7 +1376,7 @@ select.editor-input     { cursor: pointer; }
 .lib-track-num {
   font-size: 0.42rem;
   letter-spacing: 0.15em;
-  color: #555;
+  color: #888;
   flex-shrink: 0;
   font-family: 'Nova Mono', monospace;
   min-width: 1.4rem;
@@ -1401,7 +1401,7 @@ select.editor-input     { cursor: pointer; }
   padding: 2rem;
   font-size: 0.5rem;
   letter-spacing: 0.35em;
-  color: #777;
+  color: #aaa;
   text-align: center;
   text-transform: uppercase;
 }
