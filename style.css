@@ -700,13 +700,13 @@ body::after {
   color: var(--white);
   padding: 0.5rem 0.7rem;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.15em;
   outline: none;
   transition: border-color 0.2s;
 }
 .search-input:focus { border-color: var(--white-faint); }
-.search-input::placeholder { color: var(--white-faint); letter-spacing: 0.15em; }
+.search-input::placeholder { color: var(--white-dim); letter-spacing: 0.15em; }
 
 /* ── FILTER MATRIX ────────────────────────────── */
 .filter-section {
@@ -969,7 +969,7 @@ body::after {
   div[style*="padding: 0.7rem 2rem"] {
     padding: 0.5rem 0.8rem !important;
   }
-  .search-input { font-size: 0.52rem; }
+  .search-input { font-size: 0.65rem; }
 
   div[style*="padding:0.5rem 2rem"] {
     padding: 0.35rem 0.8rem !important;
