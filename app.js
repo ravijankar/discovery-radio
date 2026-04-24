@@ -8,6 +8,8 @@ let audio = null, currentStation = null, playing = false;
 let streamIndex = 0;
 let currentVolume = 0.5;
 let nowPlayingTimer = null;
+let bulletinAudio = null, bulletinPlaying = false, preBulletinStation = null;
+let lastBulletinHour = -1;
 
 // ── DOM REFS ─────────────────────────────────
 const philWrap    = document.getElementById('philWrap');
@@ -188,6 +190,7 @@ function setVolume(v) {
   document.getElementById('volSlider').value = v;
   knobValEl.textContent = v + '%';
   if (audio) audio.volume = Math.pow(currentVolume, 2);
+  if (bulletinAudio) bulletinAudio.volume = Math.pow(currentVolume, 2);
   drawKnob(v);
 }
 
@@ -300,6 +303,7 @@ function clearNpw() {
 // Supports both direct streams and HLS (.m3u8) via native browser HLS.
 
 philWrap.addEventListener('click', () => {
+  if (bulletinPlaying) { stopBulletin(); return; }
   if (playing || audio !== null) stopAll();
   else if (currentStation) {
     if (currentStation.call === 'LIBRARY') {
@@ -375,14 +379,34 @@ function tryStream(st, card, idx) {
     advanceLibraryTrack();
   }, { once: true });
 
+  // Persistent error handler — catches mid-stream drops after lock
   audio.addEventListener('error', () => {
     clearTimeout(connectTimer);
+    const code = audio?.error ? audio.error.code : '?';
     if (!playing) {
-      const code = audio.error ? audio.error.code : '?';
       addLog('SOURCE ' + (idx + 1) + ' FAULT (ERR ' + code + ') — ADVANCING', 'warn');
       tryStream(st, card, idx + 1);
+    } else if (currentStation?.call === st.call && st.call !== 'LIBRARY') {
+      addLog('STREAM FAULT (ERR ' + code + ') — RECONNECTING', 'warn');
+      playing = false;
+      tryStream(st, card, 0);
     }
-  }, { once: true });
+  });
+
+  // Stall watchdog — if audio stalls for >15s after lock, reconnect
+  let stallTimer = null;
+  audio.addEventListener('stalled', () => {
+    if (!playing) return;
+    clearTimeout(stallTimer);
+    stallTimer = setTimeout(() => {
+      if (playing && currentStation?.call === st.call && st.call !== 'LIBRARY') {
+        addLog('SIGNAL STALLED — RECONNECTING', 'warn');
+        playing = false;
+        tryStream(st, card, 0);
+      }
+    }, 15000);
+  });
+  audio.addEventListener('playing', () => clearTimeout(stallTimer));
 
   audio.play().catch(err => {
     clearTimeout(connectTimer);
@@ -439,6 +463,86 @@ function playStation(st, card) {
   addLog('ACQUIRING: ' + st.call + ' — ' + st.name.substring(0, 25).toUpperCase(), 'hi');
   addLog(st.streams.length + ' SOURCE(S) AVAILABLE — INITIATING LOCK');
   tryStream(st, card, 0);
+}
+
+function stopBulletin() {
+  if (bulletinAudio) {
+    bulletinAudio.pause();
+    bulletinAudio.removeAttribute('src');
+    bulletinAudio.load();
+    bulletinAudio = null;
+  }
+  bulletinPlaying = false;
+  preBulletinStation = null;
+  document.getElementById('bulletinBtn').classList.remove('active');
+  document.getElementById('bulletinMeta').textContent = 'TOP OF HOUR · AUTO BROADCAST';
+  philWrap.classList.remove('playing');
+  sigOut.textContent   = 'NONE';
+  modeOut.textContent  = 'STANDBY';
+  recvStat.innerHTML   = 'NO SIGNAL<span class="recv-cursor"></span>';
+  recvDesc.textContent = 'Awaiting station selection';
+  freqOut.textContent  = '-- -- -- --';
+  errorStrip.classList.remove('show');
+  animateVU(false); animateMeters(false);
+  clearNpw();
+  addLog('BULLETIN TERMINATED', 'warn');
+}
+
+function playBulletin(auto) {
+  const savedStation = (playing && currentStation) ? currentStation : null;
+  const savedCard    = savedStation ? document.querySelector(`[data-call="${savedStation.call}"]`) : null;
+  preBulletinStation = savedStation ? { station: savedStation, card: savedCard } : null;
+
+  stopAll();
+  bulletinPlaying = true;
+  document.getElementById('bulletinBtn').classList.add('active');
+  document.getElementById('bulletinMeta').textContent = auto ? 'AUTO BROADCAST — TOP OF HOUR' : 'MANUAL INTERCEPT';
+
+  bulletinAudio = new Audio('/api/bulletin');
+  bulletinAudio.volume = Math.pow(currentVolume, 2);
+
+  recvStat.innerHTML   = 'BULLETIN<span class="recv-cursor"></span>';
+  recvDesc.textContent = 'DISCOVERY RADIO NEWS BULLETIN';
+  freqOut.textContent  = 'BULLETIN';
+  sigOut.textContent   = 'RECEIVING';
+  modeOut.textContent  = 'BULLETIN';
+  philWrap.classList.add('playing');
+  animateVU(true); animateMeters(true);
+  npwArtist.textContent = 'DISCOVERY RADIO';
+  npwTitle.textContent  = 'NEWS BULLETIN';
+  npwAlbum.textContent  = '';
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
+  addLog('BULLETIN INTERCEPT — DISCOVERY RADIO NEWS', 'hi');
+
+  bulletinAudio.addEventListener('ended', () => {
+    bulletinPlaying = false;
+    bulletinAudio = null;
+    document.getElementById('bulletinBtn').classList.remove('active');
+    document.getElementById('bulletinMeta').textContent = 'TOP OF HOUR · AUTO BROADCAST';
+    philWrap.classList.remove('playing');
+    animateVU(false); animateMeters(false);
+    if (preBulletinStation) {
+      const { station, card } = preBulletinStation;
+      preBulletinStation = null;
+      addLog('RESUMING: ' + station.call, 'ok');
+      if (card) playStation(station, card);
+      else if (station.call === 'LIBRARY' && currentLibraryContext) {
+        playLibraryTrack(currentLibraryContext);
+      }
+    } else {
+      stopAll();
+    }
+  }, { once: true });
+
+  bulletinAudio.play().catch(err => {
+    addLog('BULLETIN UNAVAILABLE: ' + err.name, 'err');
+    bulletinPlaying = false;
+    bulletinAudio = null;
+    document.getElementById('bulletinBtn').classList.remove('active');
+    document.getElementById('bulletinMeta').textContent = 'TOP OF HOUR · AUTO BROADCAST';
+    stopAll();
+  });
 }
 
 function stopAll() {
@@ -763,6 +867,20 @@ addLog('PHIL 9000 INTERFACE ACTIVE', 'ok');
 addLog('CORS-FREE PLAYBACK ENGINE ACTIVE', 'ok');
 addLog((STATIONS.us.length + STATIONS.intl.length) + ' BROADCAST SOURCES INDEXED');
 addLog('AWAITING OPERATOR SELECTION');
+
+document.getElementById('bulletinBtn').addEventListener('click', () => {
+  if (bulletinPlaying) stopBulletin();
+  else playBulletin(false);
+});
+
+// Auto-interrupt at the top of each hour
+setInterval(() => {
+  const now = new Date();
+  if (now.getMinutes() === 0 && now.getHours() !== lastBulletinHour) {
+    lastBulletinHour = now.getHours();
+    if (!bulletinPlaying) playBulletin(true);
+  }
+}, 5000);
 
 // ── LIBRARY MODE ─────────────────────────────
 let libraryData         = null;

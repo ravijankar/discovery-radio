@@ -247,50 +247,58 @@ function stopNowPlaying() {
   progressTimer   = null;
 }
 
+function updateNowPlaying(artist, title, album, art, elapsed, duration) {
+  npArtist.textContent = (artist || '—').toUpperCase();
+  npTitle.textContent  = (title  || '—').toUpperCase();
+  npAlbum.textContent  = (album  || '').toUpperCase();
+  if (art) {
+    npArt.src = art;
+    npArt.style.display = 'block';
+    npArtPlaceholder.style.display = 'none';
+    npArt.onerror = () => {
+      npArt.style.display = 'none';
+      npArtPlaceholder.style.display = 'flex';
+    };
+  } else {
+    npArt.style.display = 'none';
+    npArtPlaceholder.style.display = 'flex';
+  }
+  if (elapsed !== undefined && duration !== undefined) {
+    npElapsedBase = elapsed;
+    npDuration    = duration;
+    npPollTime    = Date.now();
+    npDurationEl.textContent = fmtTime(npDuration);
+    tickProgress();
+  }
+}
+
 function pollNowPlaying() {
   if (!playing) return;
   fetch(STATION.nowPlayingUrl)
     .then(r => r.json())
     .then(data => {
       if (!playing) return;
-
-      // Listener count
       const listeners = data?.listeners?.current;
-      if (listeners !== undefined) {
-        listenerCount.textContent = listeners;
-      }
-
-      // Track info
+      if (listeners !== undefined) listenerCount.textContent = listeners;
       const song = data?.now_playing?.song;
       const np   = data?.now_playing;
       if (song) {
-        npArtist.textContent = (song.artist || '—').toUpperCase();
-        npTitle.textContent  = (song.title  || '—').toUpperCase();
-        npAlbum.textContent  = (song.album  || '').toUpperCase();
-
-        // Album art
-        if (song.art) {
-          npArt.src = song.art;
-          npArt.style.display = 'block';
-          npArtPlaceholder.style.display = 'none';
-          npArt.onerror = () => {
-            npArt.style.display = 'none';
-            npArtPlaceholder.style.display = 'flex';
-          };
-        } else {
-          npArt.style.display = 'none';
-          npArtPlaceholder.style.display = 'flex';
-        }
+        updateNowPlaying(song.artist, song.title, song.album, song.art,
+          np?.elapsed, np?.duration);
+      } else {
+        pollIcyFallback();
       }
+    })
+    .catch(() => { if (playing) pollIcyFallback(); });
+}
 
-      // Progress
-      if (np) {
-        npElapsedBase = np.elapsed || 0;
-        npDuration    = np.duration || 0;
-        npPollTime    = Date.now();
-        npDurationEl.textContent = fmtTime(npDuration);
-        tickProgress();
-      }
+function pollIcyFallback() {
+  const url = STATION.streams[0];
+  fetch('/api/icy-meta?url=' + encodeURIComponent(url))
+    .then(r => r.json())
+    .then(data => {
+      if (!playing) return;
+      if (data.raw) updateNowPlaying(data.artist, data.title, null, data.artUrl || null);
     })
     .catch(() => {});
 }

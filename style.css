@@ -1406,3 +1406,39 @@ select.editor-input     { cursor: pointer; }
   text-transform: uppercase;
 }
 .lib-status.lib-err { color: var(--phil-red); }
+
+/* ── BULLETIN ─────────────────────────────────── */
+.bulletin-section {
+  padding: 0.55rem 1.5rem;
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.bulletin-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 0.42rem;
+  letter-spacing: 0.3em;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.bulletin-btn:hover {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+}
+.bulletin-btn.active {
+  background: var(--amber);
+  color: var(--void);
+  border-color: var(--amber);
+}
+.bulletin-meta {
+  font-size: 0.38rem;
+  letter-spacing: 0.22em;
+  color: var(--white-faint);
+}
