@@ -46,6 +46,13 @@
   </div>
 </div>
 
+<div class="outer-cols">
+  <div class="outer-left">
+    <div class="screen-cell" id="dScreen1"></div>
+    <div class="screen-cell" id="dScreen2"></div>
+  </div>
+  <div class="outer-right">
+
 <!-- MAIN -->
 <div class="main">
 
@@ -203,6 +210,9 @@
   </div>
 </div>
 
+  </div><!-- /.outer-right -->
+</div><!-- /.outer-cols -->
+
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <span>DISCOVERY ONE · AUDIO RECEPTION SUBSYSTEM 4 · UNIT PHIL/AR-4</span>
@@ -274,6 +284,11 @@
 
 <script src="stations.js?v=7"></script>
 <script src="app.js?v=8"></script>
+<script src="screens.js?v=1"></script>
+<script>
+  new DiscoveryScreen(document.getElementById('dScreen1')).start();
+  new DiscoveryScreen(document.getElementById('dScreen2')).start();
+</script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');

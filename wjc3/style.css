@@ -22,7 +22,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { background: var(--void); font-size: 18px; }
+html { background: var(--void); font-size: 14px; }
 
 body {
   background: var(--void);
@@ -529,4 +529,43 @@ body::after {
   .controls-row { grid-template-columns: 1fr 1fr; }
   .vol-section { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 1.5rem; align-items: center; }
   .header-call { font-size: 1.3rem; }
+}
+
+/* ── DISCOVERY ONE SCREENS ──────────────────────── */
+.outer-cols {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  min-height: calc(100vh - 120px);
+}
+
+.outer-left {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.outer-left .screen-cell {
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  line-height: 0;
+  flex: 1;
+}
+
+.outer-left .screen-cell:last-child { border-bottom: none; }
+
+.outer-right {
+  min-width: 0;
+}
+
+.screen-cell {
+  overflow: hidden;
+  line-height: 0;
+}
+
+@media (max-width: 700px) {
+  .outer-cols { grid-template-columns: 1fr; }
+  .outer-left { display: none; }
 }

@@ -36,6 +36,13 @@
   </div>
 </div>
 
+<div class="outer-cols">
+  <div class="outer-left">
+    <div class="screen-cell" id="dScreen1"></div>
+    <div class="screen-cell" id="dScreen2"></div>
+  </div>
+  <div class="outer-right">
+
 <!-- MAIN CONTENT -->
 <div class="content">
 
@@ -130,6 +137,14 @@
   <div class="log-output" id="logOut"></div>
 </div>
 
+  </div><!-- /.outer-right -->
+</div><!-- /.outer-cols -->
+
 <script src="app.js?v=5"></script>
+<script src="screens.js?v=1"></script>
+<script>
+  new DiscoveryScreen(document.getElementById('dScreen1')).start();
+  new DiscoveryScreen(document.getElementById('dScreen2')).start();
+</script>
 </body>
 </html>

@@ -25,7 +25,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { background: var(--void); font-size: 18px; }
+html { background: var(--void); font-size: 14px; }
 
 body {
   background: var(--void);
@@ -132,11 +132,37 @@ body::after {
 }
 
 /* ── MAIN LAYOUT ──────────────────────────────── */
+/* ── OUTER TWO-COLUMN LAYOUT ──────────────────── */
+.outer-cols {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  align-items: start;
+  min-height: calc(100vh - 100px);
+}
+
+.outer-left {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  border-right: 1px solid var(--border);
+}
+
+.outer-left .screen-cell {
+  border-bottom: 1px solid var(--border);
+}
+.outer-left .screen-cell:last-child { border-bottom: none; }
+
+.outer-right { min-width: 0; }
+
+@media (max-width: 900px) {
+  .outer-cols { grid-template-columns: 1fr; min-height: 0; }
+  .outer-left  { position: static; border-right: none; border-bottom: 1px solid var(--border); }
+}
+
 .main {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 0;
-  min-height: calc(100vh - 100px);
 }
 
 /* ── LEFT PANEL — STATIONS ────────────────────── */
@@ -1441,4 +1467,20 @@ select.editor-input     { cursor: pointer; }
   font-size: 0.38rem;
   letter-spacing: 0.22em;
   color: var(--white-faint);
+}
+
+/* ── DISCOVERY ONE SCREENS ──────────────────────── */
+.screens-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+.screen-cell {
+  overflow: hidden;
+  line-height: 0;
+  border-right: 1px solid var(--border);
+}
+.screen-cell:last-child { border-right: none; }
+@media (max-width: 700px) {
+  .screens-row { grid-template-columns: 1fr; }
 }
