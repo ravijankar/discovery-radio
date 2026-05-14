@@ -4,25 +4,25 @@
    ═══════════════════════════════════════════════════════ */
 
 :root {
-  --void:        #000000;
-  --panel:       #080808;
-  --panel2:      #0e0e0e;
-  --border:      #2a2a2a;
-  --border2:     #1a1a1a;
-  --white:       #e8e8e8;
-  --white-dim:   #888888;
-  --white-faint: #333333;
+  --void:        #080e1c;
+  --panel:       #0d1628;
+  --panel2:      #111e36;
+  --border:      #1a2540;
+  --border2:     #111e36;
+  --white:       #dde8ff;
+  --white-dim:   #7a9acc;
+  --white-faint: #3a5a88;
   --phil-red:     #cc1111;
   --phil-glow:    #ff2222;
   --amber:       #d4820a;
   --amber-dim:   #7a4a05;
-  --green:       #22aa44;
-  --grid:        rgba(255,255,255,0.03);
+  --green:       #22cc55;
+  --grid:        rgba(100,150,255,0.03);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { background: var(--void); font-size: 14px; }
+html { background: var(--void); font-size: 22px; }
 
 body {
   background: var(--void);
@@ -72,7 +72,7 @@ body::after {
 }
 
 .header-call {
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 1.8rem;
   letter-spacing: 0.35em;
   color: var(--amber);
@@ -109,7 +109,7 @@ body::after {
 }
 
 .stat-val {
-  font-family: 'Nova Mono', monospace;
+  font-family: 'Josefin Sans', monospace;
   font-size: 0.65rem;
   letter-spacing: 0.15em;
   color: var(--white-dim);
@@ -196,7 +196,7 @@ body::after {
 .phil-ticks::before, .phil-ticks::after {
   content: '';
   position: absolute;
-  background: #3a0000;
+  background: #0d1e3a;
 }
 
 .phil-eye-wrap.playing .phil-eye {
@@ -262,7 +262,7 @@ body::after {
   flex-shrink: 0;
   position: relative;
   border: 1px solid var(--border);
-  background: #0a0a0a;
+  background: #060b16;
   overflow: hidden;
 }
 
@@ -290,7 +290,7 @@ body::after {
 }
 
 .np-artist {
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 0.78rem;
   letter-spacing: 0.2em;
   color: var(--amber);
@@ -332,7 +332,7 @@ body::after {
 }
 
 .np-time {
-  font-family: 'Nova Mono', monospace;
+  font-family: 'Josefin Sans', monospace;
   font-size: 0.48rem;
   letter-spacing: 0.1em;
   color: var(--white-faint);
@@ -441,7 +441,7 @@ body::after {
 .meter-fill.green { background: var(--green); }
 
 .meter-val {
-  font-family: 'Nova Mono', monospace;
+  font-family: 'Josefin Sans', monospace;
   font-size: 0.42rem;
   letter-spacing: 0.05em;
   color: var(--white-faint);
@@ -466,7 +466,7 @@ body::after {
 #volKnob { cursor: ns-resize; }
 
 .vol-val {
-  font-family: 'Nova Mono', monospace;
+  font-family: 'Josefin Sans', monospace;
   font-size: 0.55rem;
   letter-spacing: 0.15em;
   color: var(--amber);
