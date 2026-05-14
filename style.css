@@ -19,7 +19,7 @@
   --amber:      #d4820a;
   --amber-dim:  #7a4a05;
   --green:      #22cc55;
-  --green-dim:  #0a3318;
+  --green-dim:  #0d2a1a;
   --grid:       rgba(100,150,255,0.03);
 }
 
@@ -282,52 +282,14 @@ body::after {
 
 /* ── FEATURED STATION (WJC3) ─────────────────── */
 .station-item.featured {
-  background: #080e1c;
-  border-left: 3px solid var(--amber);
-  border-bottom: 1px solid #1a2540;
-}
-
-.station-item.featured:hover { background: #0d1628; }
-.station-item.featured.active { background: #0d1e3a; }
-
-.station-item.featured .row-num {
-  color: var(--amber);
-  background: rgba(212,130,10,0.06);
-  border-right-color: #1a2540;
-}
-
-.station-item.featured .station-call {
-  color: var(--amber);
-  font-size: 0.82rem;
-}
-
-.station-item.featured .station-name {
-  color: #b87a30;
-}
-
-.station-item.featured .station-freq {
-  color: var(--amber);
-}
-
-.station-item.featured .station-right {
-  border-left-color: #2a1f00;
-}
-
-.station-item.featured .tx-dot {
-  background: var(--amber);
-  box-shadow: 0 0 6px var(--amber);
-}
-
-.station-item.featured.active .row-num {
-  color: var(--amber);
-  background: rgba(212,130,10,0.12);
+  border-left: 2px solid var(--white-faint);
 }
 
 .featured-badge {
   font-size: 0.38rem;
   letter-spacing: 0.3em;
-  color: var(--amber-dim);
-  border: 1px solid var(--amber-dim);
+  color: var(--white-faint);
+  border: 1px solid var(--white-faint);
   padding: 1px 5px;
   margin-top: 0.25rem;
   text-transform: uppercase;
@@ -588,6 +550,7 @@ body::after {
 .meters-section {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border);
+  background: #0f1e38;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -637,6 +600,7 @@ body::after {
 .vu-section {
   padding: 0.8rem 1.5rem;
   border-bottom: 1px solid var(--border);
+  background: #0f1e38;
 }
 
 .vu-label {
@@ -692,6 +656,7 @@ body::after {
 .vol-section {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border);
+  background: #0f1e38;
 }
 
 .vol-knob-wrap {
@@ -773,6 +738,7 @@ body::after {
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: #0f1e38;
 }
 
 .console-output {
