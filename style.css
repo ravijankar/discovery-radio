@@ -282,18 +282,18 @@ body::after {
 
 /* ── FEATURED STATION (WJC3) ─────────────────── */
 .station-item.featured {
-  background: #0b0800;
+  background: #080e1c;
   border-left: 3px solid var(--amber);
-  border-bottom: 1px solid #2a1f00;
+  border-bottom: 1px solid #1a2540;
 }
 
-.station-item.featured:hover { background: #120d00; }
-.station-item.featured.active { background: #150f00; }
+.station-item.featured:hover { background: #0d1628; }
+.station-item.featured.active { background: #0d1e3a; }
 
 .station-item.featured .row-num {
   color: var(--amber);
   background: rgba(212,130,10,0.06);
-  border-right-color: #2a1f00;
+  border-right-color: #1a2540;
 }
 
 .station-item.featured .station-call {
@@ -1155,7 +1155,7 @@ body::after {
 .eli-drag:active                   { cursor: grabbing; }
 .editor-list-item:hover .eli-drag  { color: var(--white); }
 .editor-list-item.dragging         { opacity: 0.35; }
-.editor-list-item.drag-over        { background: #120d00; border-left: 2px solid var(--amber); }
+.editor-list-item.drag-over        { background: #0d1628; border-left: 2px solid var(--amber); }
 
 .editor-add-btn {
   background: none;
@@ -1395,7 +1395,7 @@ select.editor-input     { cursor: pointer; }
 }
 .lib-track:hover { background: var(--panel2); }
 .lib-track.active {
-  background: #0b0800;
+  background: #080e1c;
   border-left: 3px solid var(--amber);
 }
 
