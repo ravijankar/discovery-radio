@@ -8,9 +8,11 @@ let audio = null, currentStation = null, playing = false;
 let streamIndex = 0;
 let currentVolume = 0.5;
 let nowPlayingTimer = null;
+let bulletinAudio = null, bulletinPlaying = false, preBulletinStation = null;
+let lastBulletinHour = -1;
 
 // ── DOM REFS ─────────────────────────────────
-const halWrap    = document.getElementById('halWrap');
+const philWrap    = document.getElementById('philWrap');
 const recvStat   = document.getElementById('recvStation');
 const recvDesc   = document.getElementById('recvDesc');
 const freqOut    = document.getElementById('freqReadout');
@@ -18,6 +20,11 @@ const sigOut     = document.getElementById('sigReadout');
 const modeOut    = document.getElementById('modeReadout');
 const errorStrip = document.getElementById('errorStrip');
 const consoleOut = document.getElementById('consoleOut');
+const npwArtist  = document.getElementById('npwArtist');
+const npwTitle   = document.getElementById('npwTitle');
+const npwAlbum   = document.getElementById('npwAlbum');
+const npwArt     = document.getElementById('npwArt');
+const npwPlaceholder = document.getElementById('npwPlaceholder');
 
 // ── VU METERS ────────────────────────────────
 const vuL = document.getElementById('vuL');
@@ -98,7 +105,7 @@ function addLog(msg, cls = '') {
 const knobCanvas  = document.getElementById('volKnob');
 const knobCtx     = knobCanvas.getContext('2d');
 const knobValEl   = document.getElementById('volKnobVal');
-const MIN_ANGLE   = 225;
+const MIN_ANGLE   = 135;
 
 function knobAngleFromVol(v) {
   return MIN_ANGLE + (v / 100) * 270;
@@ -183,6 +190,7 @@ function setVolume(v) {
   document.getElementById('volSlider').value = v;
   knobValEl.textContent = v + '%';
   if (audio) audio.volume = Math.pow(currentVolume, 2);
+  if (bulletinAudio) bulletinAudio.volume = Math.pow(currentVolume, 2);
   drawKnob(v);
 }
 
@@ -240,30 +248,70 @@ function stopNowPlaying() {
   nowPlayingTimer = null;
 }
 
+function updateNpw(artist, title, album, artUrl) {
+  npwArtist.textContent = (artist || '—').toUpperCase();
+  npwTitle.textContent  = (title  || '—').toUpperCase();
+  npwAlbum.textContent  = (album  || '').toUpperCase();
+  const parts = [artist, title].filter(Boolean);
+  if (parts.length) recvDesc.textContent = parts.join(' — ').toUpperCase();
+  if (artUrl) {
+    npwArt.src = artUrl;
+    npwArt.style.display = 'block';
+    npwPlaceholder.style.display = 'none';
+    npwArt.onerror = () => { npwArt.style.display = 'none'; npwPlaceholder.style.display = 'flex'; };
+  } else {
+    npwArt.style.display = 'none';
+    npwPlaceholder.style.display = 'flex';
+  }
+}
+
 function pollNowPlaying(st) {
   if (currentStation?.call !== st.call || !playing) return;
-  fetch(st.nowPlayingUrl)
-    .then(r => r.json())
-    .then(data => {
-      if (currentStation?.call !== st.call) return;
-      const song = data?.now_playing?.song;
-      if (song) {
-        const parts = [song.artist, song.title].filter(Boolean);
-        if (parts.length) recvDesc.textContent = parts.join(' — ').toUpperCase();
-      }
-    })
-    .catch(() => {});
+
+  if (st.nowPlayingUrl) {
+    fetch(st.nowPlayingUrl)
+      .then(r => r.json())
+      .then(data => {
+        if (currentStation?.call !== st.call) return;
+        const song = data?.now_playing?.song;
+        if (song) updateNpw(song.artist, song.title, song.album, song.art);
+      })
+      .catch(() => {});
+  } else {
+    const streamUrl = st.streams?.[streamIndex] || st.streams?.[0];
+    if (!streamUrl) return;
+    fetch('/api/icy-meta?url=' + encodeURIComponent(streamUrl))
+      .then(r => r.json())
+      .then(data => {
+        if (currentStation?.call !== st.call) return;
+        if (data.raw) updateNpw(data.artist, data.title, null, data.artUrl || null);
+      })
+      .catch(() => {});
+  }
+}
+
+function clearNpw() {
+  npwArtist.textContent = '—';
+  npwTitle.textContent  = '—';
+  npwAlbum.textContent  = '';
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
 }
 
 // ── PLAYBACK ENGINE ──────────────────────────
 // Multi-source fallback: tries each URL in st.streams[] in order.
 // Supports both direct streams and HLS (.m3u8) via native browser HLS.
 
-halWrap.addEventListener('click', () => {
-  if (playing) stopAll();
+philWrap.addEventListener('click', () => {
+  if (bulletinPlaying) { stopBulletin(); return; }
+  if (playing || audio !== null) stopAll();
   else if (currentStation) {
-    const card = document.querySelector(`[data-call="${currentStation.call}"]`);
-    if (card) tryStream(currentStation, card, 0);
+    if (currentStation.call === 'LIBRARY') {
+      tryStream(currentStation, null, 0);
+    } else {
+      const card = document.querySelector(`[data-call="${currentStation.call}"]`);
+      if (card) tryStream(currentStation, card, 0);
+    }
   }
 });
 
@@ -315,7 +363,7 @@ function tryStream(st, card, idx) {
     clearTimeout(connectTimer);
     playing = true;
     streamIndex = idx;
-    halWrap.classList.add('playing');
+    philWrap.classList.add('playing');
     sigOut.textContent  = 'LOCKED';
     modeOut.textContent = 'RECEIVING';
     errorStrip.classList.remove('show');
@@ -326,14 +374,39 @@ function tryStream(st, card, idx) {
     startNowPlaying(st);
   }, { once: true });
 
+  audio.addEventListener('ended', () => {
+    if (currentStation?.call !== 'LIBRARY') return;
+    advanceLibraryTrack();
+  }, { once: true });
+
+  // Persistent error handler — catches mid-stream drops after lock
   audio.addEventListener('error', () => {
     clearTimeout(connectTimer);
+    const code = audio?.error ? audio.error.code : '?';
     if (!playing) {
-      const code = audio.error ? audio.error.code : '?';
       addLog('SOURCE ' + (idx + 1) + ' FAULT (ERR ' + code + ') — ADVANCING', 'warn');
       tryStream(st, card, idx + 1);
+    } else if (currentStation?.call === st.call && st.call !== 'LIBRARY') {
+      addLog('STREAM FAULT (ERR ' + code + ') — RECONNECTING', 'warn');
+      playing = false;
+      tryStream(st, card, 0);
     }
-  }, { once: true });
+  });
+
+  // Stall watchdog — if audio stalls for >15s after lock, reconnect
+  let stallTimer = null;
+  audio.addEventListener('stalled', () => {
+    if (!playing) return;
+    clearTimeout(stallTimer);
+    stallTimer = setTimeout(() => {
+      if (playing && currentStation?.call === st.call && st.call !== 'LIBRARY') {
+        addLog('SIGNAL STALLED — RECONNECTING', 'warn');
+        playing = false;
+        tryStream(st, card, 0);
+      }
+    }, 15000);
+  });
+  audio.addEventListener('playing', () => clearTimeout(stallTimer));
 
   audio.play().catch(err => {
     clearTimeout(connectTimer);
@@ -346,17 +419,24 @@ function tryStream(st, card, idx) {
 
 function onAllFailed(st) {
   destroyAudio();
-  halWrap.classList.remove('playing');
-  sigOut.textContent   = 'NONE';
-  modeOut.textContent  = 'FAULT';
-  recvStat.innerHTML   = 'SIGNAL LOST<span class="recv-cursor"></span>';
-  recvDesc.textContent = 'All sources exhausted — station unavailable';
-  freqOut.textContent  = '-- -- -- --';
+  philWrap.classList.remove('playing');
+  sigOut.textContent  = 'NONE';
+  modeOut.textContent = 'FAULT';
+  freqOut.textContent = '-- -- -- --';
   errorStrip.classList.add('show');
   allOff(); animateVU(false); animateMeters(false);
+  clearNpw();
   stopNowPlaying();
-  addLog('ALL SOURCES EXHAUSTED: ' + st.call, 'err');
-  addLog('STATION MAY BE OFFLINE OR GEO-RESTRICTED', 'warn');
+  if (st.call === 'LIBRARY') {
+    recvStat.innerHTML   = 'LOAD ERROR<span class="recv-cursor"></span>';
+    recvDesc.textContent = 'Track unavailable — check server';
+    addLog('LIBRARY TRACK FAILED TO LOAD', 'err');
+  } else {
+    recvStat.innerHTML   = 'SIGNAL LOST<span class="recv-cursor"></span>';
+    recvDesc.textContent = 'All sources exhausted — station unavailable';
+    addLog('ALL SOURCES EXHAUSTED: ' + st.call, 'err');
+    addLog('STATION MAY BE OFFLINE OR GEO-RESTRICTED', 'warn');
+  }
 }
 
 function playStation(st, card) {
@@ -365,6 +445,7 @@ function playStation(st, card) {
   stopNowPlaying();
   destroyAudio();
   allOff();
+  clearLibraryActive();
   currentStation = st;
   card.classList.add('active');
   recvStat.innerHTML   = st.call + '<span class="recv-cursor"></span>';
@@ -372,17 +453,102 @@ function playStation(st, card) {
   freqOut.textContent  = st.freq;
   sigOut.textContent   = 'ACQUIRING';
   modeOut.textContent  = 'CONNECTING';
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   animateVU(false); animateMeters(false);
+  npwArtist.textContent = st.name.toUpperCase();
+  npwTitle.textContent  = 'ACQUIRING SIGNAL';
+  npwAlbum.textContent  = '';
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
   addLog('ACQUIRING: ' + st.call + ' — ' + st.name.substring(0, 25).toUpperCase(), 'hi');
   addLog(st.streams.length + ' SOURCE(S) AVAILABLE — INITIATING LOCK');
   speakAnnouncement(st);
   tryStream(st, card, 0);
 }
 
+function stopBulletin() {
+  if (bulletinAudio) {
+    bulletinAudio.pause();
+    bulletinAudio.removeAttribute('src');
+    bulletinAudio.load();
+    bulletinAudio = null;
+  }
+  bulletinPlaying = false;
+  preBulletinStation = null;
+  document.getElementById('bulletinBtn').classList.remove('active');
+  document.getElementById('bulletinMeta').textContent = 'TOP OF HOUR · AUTO BROADCAST';
+  philWrap.classList.remove('playing');
+  sigOut.textContent   = 'NONE';
+  modeOut.textContent  = 'STANDBY';
+  recvStat.innerHTML   = 'NO SIGNAL<span class="recv-cursor"></span>';
+  recvDesc.textContent = 'Awaiting station selection';
+  freqOut.textContent  = '-- -- -- --';
+  errorStrip.classList.remove('show');
+  animateVU(false); animateMeters(false);
+  clearNpw();
+  addLog('BULLETIN TERMINATED', 'warn');
+}
+
+function playBulletin(auto) {
+  const savedStation = (playing && currentStation) ? currentStation : null;
+  const savedCard    = savedStation ? document.querySelector(`[data-call="${savedStation.call}"]`) : null;
+  preBulletinStation = savedStation ? { station: savedStation, card: savedCard } : null;
+
+  stopAll();
+  bulletinPlaying = true;
+  document.getElementById('bulletinBtn').classList.add('active');
+  document.getElementById('bulletinMeta').textContent = auto ? 'AUTO BROADCAST — TOP OF HOUR' : 'MANUAL INTERCEPT';
+
+  bulletinAudio = new Audio('/api/bulletin');
+  bulletinAudio.volume = Math.pow(currentVolume, 2);
+
+  recvStat.innerHTML   = 'BULLETIN<span class="recv-cursor"></span>';
+  recvDesc.textContent = 'DISCOVERY RADIO NEWS BULLETIN';
+  freqOut.textContent  = 'BULLETIN';
+  sigOut.textContent   = 'RECEIVING';
+  modeOut.textContent  = 'BULLETIN';
+  philWrap.classList.add('playing');
+  animateVU(true); animateMeters(true);
+  npwArtist.textContent = 'DISCOVERY RADIO';
+  npwTitle.textContent  = 'NEWS BULLETIN';
+  npwAlbum.textContent  = '';
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
+  addLog('BULLETIN INTERCEPT — DISCOVERY RADIO NEWS', 'hi');
+
+  bulletinAudio.addEventListener('ended', () => {
+    bulletinPlaying = false;
+    bulletinAudio = null;
+    document.getElementById('bulletinBtn').classList.remove('active');
+    document.getElementById('bulletinMeta').textContent = 'TOP OF HOUR · AUTO BROADCAST';
+    philWrap.classList.remove('playing');
+    animateVU(false); animateMeters(false);
+    if (preBulletinStation) {
+      const { station, card } = preBulletinStation;
+      preBulletinStation = null;
+      addLog('RESUMING: ' + station.call, 'ok');
+      if (card) playStation(station, card);
+      else if (station.call === 'LIBRARY' && currentLibraryContext) {
+        playLibraryTrack(currentLibraryContext);
+      }
+    } else {
+      stopAll();
+    }
+  }, { once: true });
+
+  bulletinAudio.play().catch(err => {
+    addLog('BULLETIN UNAVAILABLE: ' + err.name, 'err');
+    bulletinPlaying = false;
+    bulletinAudio = null;
+    document.getElementById('bulletinBtn').classList.remove('active');
+    document.getElementById('bulletinMeta').textContent = 'TOP OF HOUR · AUTO BROADCAST';
+    stopAll();
+  });
+}
+
 function stopAll() {
   destroyAudio();
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   sigOut.textContent   = 'NONE';
   modeOut.textContent  = 'STANDBY';
   recvStat.innerHTML   = 'NO SIGNAL<span class="recv-cursor"></span>';
@@ -390,7 +556,9 @@ function stopAll() {
   freqOut.textContent  = '-- -- -- --';
   errorStrip.classList.remove('show');
   allOff(); animateVU(false); animateMeters(false);
+  clearNpw();
   stopNowPlaying();
+  clearLibraryActive();
   addLog('TRANSMISSION TERMINATED BY OPERATOR', 'warn');
 }
 
@@ -465,7 +633,7 @@ setInterval(tick, 1000);
 // ── STATION EDITOR ───────────────────────────
 function loadUserStations() {
   try {
-    const saved = localStorage.getItem('hal_stations');
+    const saved = localStorage.getItem('phil_stations');
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed.us)   STATIONS.us   = parsed.us;
@@ -476,7 +644,7 @@ function loadUserStations() {
 
 function saveUserStations() {
   try {
-    localStorage.setItem('hal_stations', JSON.stringify({ us: STATIONS.us, intl: STATIONS.intl }));
+    localStorage.setItem('phil_stations', JSON.stringify({ us: STATIONS.us, intl: STATIONS.intl }));
   } catch (e) {}
 }
 
@@ -769,3 +937,273 @@ addLog('PHIL 9000 INTERFACE ACTIVE', 'ok');
 addLog('CORS-FREE PLAYBACK ENGINE ACTIVE', 'ok');
 addLog((STATIONS.us.length + STATIONS.intl.length) + ' BROADCAST SOURCES INDEXED');
 addLog('AWAITING OPERATOR SELECTION');
+
+document.getElementById('bulletinBtn').addEventListener('click', () => {
+  if (bulletinPlaying) stopBulletin();
+  else playBulletin(false);
+});
+
+// Auto-interrupt at the top of each hour
+setInterval(() => {
+  const now = new Date();
+  if (now.getMinutes() === 0 && now.getHours() !== lastBulletinHour) {
+    lastBulletinHour = now.getHours();
+    if (!bulletinPlaying) playBulletin(true);
+  }
+}, 5000);
+
+// ── LIBRARY MODE ─────────────────────────────
+let libraryData         = null;
+let activeLibraryItem   = null;
+let currentLibraryContext = null;
+
+function clearLibraryActive() {
+  if (activeLibraryItem) { activeLibraryItem.classList.remove('active'); activeLibraryItem = null; }
+  currentLibraryContext = null;
+}
+
+function formatTrackName(filename) {
+  return filename
+    .replace(/\.[^.]+$/, '')
+    .replace(/_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, '')
+    .replace(/^\d{1,3}[\s\-_.]+/, '')
+    .trim();
+}
+
+async function loadLibrary() {
+  const list = document.getElementById('libraryList');
+  list.innerHTML = '<div class="lib-status">SCANNING MEDIA ARCHIVE...</div>';
+  try {
+    const r = await fetch('/api/library');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    libraryData = await r.json();
+    renderLibrary(libraryData);
+    addLog('ARCHIVE INDEXED: ' + libraryData.length + ' ARTISTS', 'ok');
+  } catch (e) {
+    list.innerHTML = '<div class="lib-status lib-err">ARCHIVE UNAVAILABLE</div>';
+    addLog('LIBRARY FETCH FAILED: ' + e.message, 'err');
+  }
+}
+
+function renderLibrary(artists) {
+  const list = document.getElementById('libraryList');
+  list.innerHTML = '';
+  const query = (document.getElementById('libSearchInput')?.value || '').toLowerCase();
+
+  let rendered = 0;
+  artists.forEach(artist => {
+    const matchesArtist = !query || artist.name.toLowerCase().includes(query);
+    const filteredAlbums = artist.albums.map(album => {
+      const matchesAlbum = matchesArtist || album.name.toLowerCase().includes(query);
+      const filteredTracks = matchesAlbum
+        ? album.tracks
+        : album.tracks.filter(t => formatTrackName(t).toLowerCase().includes(query));
+      return filteredTracks.length ? { ...album, tracks: filteredTracks } : null;
+    }).filter(Boolean);
+
+    if (!filteredAlbums.length) return;
+    rendered++;
+
+    const section = document.createElement('div');
+    section.className = 'lib-artist';
+
+    const totalTracks = filteredAlbums.reduce((n, a) => n + a.tracks.length, 0);
+    const header = document.createElement('div');
+    header.className = 'lib-artist-header';
+    header.innerHTML =
+      `<span class="lib-expand-icon">▶</span>` +
+      `<span class="lib-artist-name">${artist.name.toUpperCase()}</span>` +
+      `<span class="lib-artist-meta">${filteredAlbums.length} ALB · ${totalTracks} TRK</span>`;
+
+    const body = document.createElement('div');
+    body.className = 'lib-artist-body';
+    const autoExpand = !!query;
+    body.style.display = autoExpand ? 'block' : 'none';
+    if (autoExpand) header.querySelector('.lib-expand-icon').textContent = '▼';
+
+    filteredAlbums.forEach(album => {
+      const albumEl = document.createElement('div');
+      albumEl.className = 'lib-album';
+      const elements = buildAlbumTrackItems(artist.name, album.name, album.tracks);
+
+      if (album.name) {
+        const albumHeader = document.createElement('div');
+        albumHeader.className = 'lib-album-header';
+
+        const expandIcon = document.createElement('span');
+        expandIcon.className = 'lib-expand-icon';
+        expandIcon.textContent = autoExpand ? '▼' : '▶';
+
+        const albumName = document.createElement('span');
+        albumName.className = 'lib-album-name';
+        albumName.textContent = album.name.toUpperCase();
+
+        const albumMeta = document.createElement('span');
+        albumMeta.className = 'lib-album-meta';
+        albumMeta.textContent = album.tracks.length + ' TRK';
+
+        const playAllBtn = document.createElement('button');
+        playAllBtn.className = 'lib-play-album-btn';
+        playAllBtn.textContent = '▶ ALL';
+        playAllBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          playLibraryTrack({ artist: artist.name, album: album.name, tracks: album.tracks, trackIdx: 0, elements });
+        });
+
+        albumHeader.appendChild(expandIcon);
+        albumHeader.appendChild(albumName);
+        albumHeader.appendChild(albumMeta);
+        albumHeader.appendChild(playAllBtn);
+
+        const trackList = document.createElement('div');
+        trackList.className = 'lib-track-list';
+        trackList.style.display = autoExpand ? 'block' : 'none';
+        elements.forEach(el => trackList.appendChild(el));
+
+        albumHeader.addEventListener('click', () => {
+          const open = trackList.style.display !== 'none';
+          trackList.style.display = open ? 'none' : 'block';
+          expandIcon.textContent = open ? '▶' : '▼';
+        });
+
+        albumEl.appendChild(albumHeader);
+        albumEl.appendChild(trackList);
+      } else {
+        elements.forEach(el => albumEl.appendChild(el));
+      }
+
+      body.appendChild(albumEl);
+    });
+
+    header.addEventListener('click', () => {
+      const open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : 'block';
+      header.querySelector('.lib-expand-icon').textContent = open ? '▶' : '▼';
+    });
+
+    section.appendChild(header);
+    section.appendChild(body);
+    list.appendChild(section);
+  });
+
+  if (!rendered) {
+    list.innerHTML = '<div class="lib-status">NO MATCHES</div>';
+  }
+}
+
+function buildAlbumTrackItems(artist, album, tracks) {
+  const elements = [];
+  tracks.forEach((track, i) => {
+    const el = document.createElement('div');
+    el.className = 'lib-track';
+    el.innerHTML =
+      `<span class="lib-track-num">${String(i + 1).padStart(2, '0')}</span>` +
+      `<span class="lib-track-name">${formatTrackName(track).toUpperCase()}</span>`;
+    el.addEventListener('click', () =>
+      playLibraryTrack({ artist, album, tracks, trackIdx: i, elements }));
+    elements.push(el);
+  });
+  return elements;
+}
+
+function advanceLibraryTrack() {
+  if (!currentLibraryContext) {
+    playing = false;
+    philWrap.classList.remove('playing');
+    sigOut.textContent  = 'COMPLETE';
+    modeOut.textContent = 'STANDBY';
+    animateVU(false);
+    animateMeters(false);
+    addLog('TRACK COMPLETE', 'ok');
+    return;
+  }
+  const { artist, album, tracks, trackIdx, elements } = currentLibraryContext;
+  const nextIdx = trackIdx + 1;
+  if (nextIdx >= tracks.length) {
+    playing = false;
+    philWrap.classList.remove('playing');
+    sigOut.textContent  = 'COMPLETE';
+    modeOut.textContent = 'STANDBY';
+    animateVU(false);
+    animateMeters(false);
+    if (activeLibraryItem) { activeLibraryItem.classList.remove('active'); activeLibraryItem = null; }
+    currentLibraryContext = null;
+    addLog('ALBUM COMPLETE', 'ok');
+    return;
+  }
+  addLog('ADVANCING: TRACK ' + (nextIdx + 1) + ' OF ' + tracks.length);
+  playLibraryTrack({ artist, album, tracks, trackIdx: nextIdx, elements });
+}
+
+function playLibraryTrack({ artist, album, tracks, trackIdx, elements }) {
+  const filename = tracks[trackIdx];
+  const el       = elements[trackIdx];
+
+  const isSame = currentStation?.call === 'LIBRARY' &&
+                 activeLibraryItem === el && playing;
+  if (isSame) { stopAll(); return; }
+
+  clearLibraryActive();
+  activeLibraryItem = el;
+  if (el) el.classList.add('active');
+  currentLibraryContext = { artist, album, tracks, trackIdx, elements };
+
+  const parts    = [artist, album, filename].filter(Boolean).map(encodeURIComponent);
+  const streamUrl = '/api/library/stream/' + parts.join('/');
+
+  const st = {
+    call:    'LIBRARY',
+    name:    artist,
+    loc:     album || 'LOCAL LIBRARY',
+    freq:    'FILE',
+    desc:    formatTrackName(filename),
+    tags:    [],
+    streams: [streamUrl],
+  };
+
+  errorStrip.classList.remove('show');
+  stopNowPlaying();
+  destroyAudio();
+  allOff();
+  currentStation = st;
+
+  recvStat.innerHTML   = formatTrackName(filename).toUpperCase() + '<span class="recv-cursor"></span>';
+  recvDesc.textContent = artist.toUpperCase() + (album ? ' — ' + album.toUpperCase() : '');
+  freqOut.textContent  = 'FILE';
+  sigOut.textContent   = 'LOADING';
+  modeOut.textContent  = 'BUFFERING';
+  philWrap.classList.remove('playing');
+  animateVU(false);
+  animateMeters(false);
+
+  npwArtist.textContent = artist.toUpperCase();
+  npwTitle.textContent  = formatTrackName(filename).toUpperCase();
+  npwAlbum.textContent  = album.toUpperCase();
+  npwArt.style.display  = 'none';
+  npwPlaceholder.style.display = 'flex';
+
+  addLog('ACCESSING ARCHIVE: ' + artist.substring(0, 22).toUpperCase(), 'hi');
+  addLog('TRACK: ' + formatTrackName(filename).substring(0, 28).toUpperCase());
+
+  tryStream(st, null, 0);
+}
+
+// Mode toggle
+document.getElementById('modeBroadcastBtn').addEventListener('click', () => {
+  document.getElementById('broadcastPanel').style.display = '';
+  document.getElementById('libraryPanel').style.display   = 'none';
+  document.getElementById('modeBroadcastBtn').classList.add('active');
+  document.getElementById('modeLibraryBtn').classList.remove('active');
+});
+
+document.getElementById('modeLibraryBtn').addEventListener('click', () => {
+  document.getElementById('broadcastPanel').style.display = 'none';
+  document.getElementById('libraryPanel').style.display   = '';
+  document.getElementById('modeLibraryBtn').classList.add('active');
+  document.getElementById('modeBroadcastBtn').classList.remove('active');
+  if (!libraryData) loadLibrary();
+});
+
+document.getElementById('libSearchInput').addEventListener('input', () => {
+  if (libraryData) renderLibrary(libraryData);
+});

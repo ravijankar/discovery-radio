@@ -18,7 +18,7 @@
 <div class="header">
   <div class="header-ident">
     <div class="header-call">WJC3</div>
-    <div class="header-sub">HAL9000 Music Archive</div>
+    <div class="header-sub">PHIL 9000 Music Archive</div>
   </div>
   <div class="header-stats">
     <div class="stat-item">
@@ -36,15 +36,22 @@
   </div>
 </div>
 
+<div class="outer-cols">
+  <div class="outer-left">
+    <div class="screen-cell" id="dScreen1"></div>
+    <div class="screen-cell" id="dScreen2"></div>
+  </div>
+  <div class="outer-right">
+
 <!-- MAIN CONTENT -->
 <div class="content">
 
-  <!-- HAL EYE -->
+  <!-- PHIL EYE -->
   <div class="eye-section">
-    <div class="hal-eye-wrap" id="halWrap" title="ENGAGE / DISENGAGE TRANSMISSION">
-      <div class="hal-ring"></div>
-      <div class="hal-ticks"></div>
-      <div class="hal-eye" id="halEye"></div>
+    <div class="phil-eye-wrap" id="philWrap" title="ENGAGE / DISENGAGE TRANSMISSION">
+      <div class="phil-ring"></div>
+      <div class="phil-ticks"></div>
+      <div class="phil-eye" id="philEye"></div>
     </div>
     <div class="eye-label" id="eyeLabel">ENGAGE TRANSMISSION</div>
   </div>
@@ -130,6 +137,14 @@
   <div class="log-output" id="logOut"></div>
 </div>
 
+  </div><!-- /.outer-right -->
+</div><!-- /.outer-cols -->
+
 <script src="app.js?v=5"></script>
+<script src="screens.js?v=1"></script>
+<script>
+  new DiscoveryScreen(document.getElementById('dScreen1')).start();
+  new DiscoveryScreen(document.getElementById('dScreen2')).start();
+</script>
 </body>
 </html>

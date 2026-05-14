@@ -12,6 +12,9 @@ const STATION = {
   nowPlayingUrl: 'https://radio.ravijankar.com/api/nowplaying/jc3_radio',
 };
 
+// ── TOKEN ────────────────────────────────────
+const TOKEN = new URLSearchParams(location.search).get('token') || '';
+
 // ── STATE ────────────────────────────────────
 let audio = null;
 let playing = false;
@@ -23,7 +26,7 @@ let npDuration = 0;
 let npPollTime = 0;
 
 // ── DOM ──────────────────────────────────────
-const halWrap       = document.getElementById('halWrap');
+const philWrap       = document.getElementById('philWrap');
 const eyeLabel      = document.getElementById('eyeLabel');
 const statusVal     = document.getElementById('statusVal');
 const listenerCount = document.getElementById('listenerCount');
@@ -115,7 +118,7 @@ function animateMeters(on) {
 // ── VOLUME KNOB ──────────────────────────────
 const knobCanvas = document.getElementById('volKnob');
 const knobCtx    = knobCanvas.getContext('2d');
-const MIN_ANGLE  = 225;
+const MIN_ANGLE  = 135;
 
 function drawKnob(vol) {
   const c = knobCanvas;
@@ -244,50 +247,58 @@ function stopNowPlaying() {
   progressTimer   = null;
 }
 
+function updateNowPlaying(artist, title, album, art, elapsed, duration) {
+  npArtist.textContent = (artist || '—').toUpperCase();
+  npTitle.textContent  = (title  || '—').toUpperCase();
+  npAlbum.textContent  = (album  || '').toUpperCase();
+  if (art) {
+    npArt.src = art;
+    npArt.style.display = 'block';
+    npArtPlaceholder.style.display = 'none';
+    npArt.onerror = () => {
+      npArt.style.display = 'none';
+      npArtPlaceholder.style.display = 'flex';
+    };
+  } else {
+    npArt.style.display = 'none';
+    npArtPlaceholder.style.display = 'flex';
+  }
+  if (elapsed !== undefined && duration !== undefined) {
+    npElapsedBase = elapsed;
+    npDuration    = duration;
+    npPollTime    = Date.now();
+    npDurationEl.textContent = fmtTime(npDuration);
+    tickProgress();
+  }
+}
+
 function pollNowPlaying() {
   if (!playing) return;
   fetch(STATION.nowPlayingUrl)
     .then(r => r.json())
     .then(data => {
       if (!playing) return;
-
-      // Listener count
       const listeners = data?.listeners?.current;
-      if (listeners !== undefined) {
-        listenerCount.textContent = listeners;
-      }
-
-      // Track info
+      if (listeners !== undefined) listenerCount.textContent = listeners;
       const song = data?.now_playing?.song;
       const np   = data?.now_playing;
       if (song) {
-        npArtist.textContent = (song.artist || '—').toUpperCase();
-        npTitle.textContent  = (song.title  || '—').toUpperCase();
-        npAlbum.textContent  = (song.album  || '').toUpperCase();
-
-        // Album art
-        if (song.art) {
-          npArt.src = song.art;
-          npArt.style.display = 'block';
-          npArtPlaceholder.style.display = 'none';
-          npArt.onerror = () => {
-            npArt.style.display = 'none';
-            npArtPlaceholder.style.display = 'flex';
-          };
-        } else {
-          npArt.style.display = 'none';
-          npArtPlaceholder.style.display = 'flex';
-        }
+        updateNowPlaying(song.artist, song.title, song.album, song.art,
+          np?.elapsed, np?.duration);
+      } else {
+        pollIcyFallback();
       }
+    })
+    .catch(() => { if (playing) pollIcyFallback(); });
+}
 
-      // Progress
-      if (np) {
-        npElapsedBase = np.elapsed || 0;
-        npDuration    = np.duration || 0;
-        npPollTime    = Date.now();
-        npDurationEl.textContent = fmtTime(npDuration);
-        tickProgress();
-      }
+function pollIcyFallback() {
+  const url = STATION.streams[0];
+  fetch('/api/icy-meta?url=' + encodeURIComponent(url))
+    .then(r => r.json())
+    .then(data => {
+      if (!playing) return;
+      if (data.raw) updateNowPlaying(data.artist, data.title, null, data.artUrl || null);
     })
     .catch(() => {});
 }
@@ -305,7 +316,8 @@ function destroyAudio() {
 
 function tryStream(idx) {
   if (idx >= STATION.streams.length) { onAllFailed(); return; }
-  const url = STATION.streams[idx];
+  const base = STATION.streams[idx];
+  const url = TOKEN ? `${base}${base.includes('?') ? '&' : '?'}token=${encodeURIComponent(TOKEN)}` : base;
   addLog('TRYING SOURCE ' + (idx + 1) + '/' + STATION.streams.length + ': ' + url.split('/').pop().substring(0, 35), idx > 0 ? 'warn' : '');
 
   destroyAudio();
@@ -324,7 +336,7 @@ function tryStream(idx) {
   audio.addEventListener('playing', () => {
     clearTimeout(connectTimer);
     playing = true;
-    halWrap.classList.add('playing');
+    philWrap.classList.add('playing');
     eyeLabel.textContent = 'DISENGAGE TRANSMISSION';
     setStatus('RECEIVING');
     errorStrip.classList.remove('show');
@@ -353,7 +365,7 @@ function tryStream(idx) {
 
 function onAllFailed() {
   destroyAudio();
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   eyeLabel.textContent = 'ENGAGE TRANSMISSION';
   setStatus('FAULT');
   errorStrip.classList.add('show');
@@ -383,7 +395,7 @@ function startPlayback() {
 
 function stopPlayback() {
   destroyAudio();
-  halWrap.classList.remove('playing');
+  philWrap.classList.remove('playing');
   eyeLabel.textContent = 'ENGAGE TRANSMISSION';
   setStatus('STANDBY');
   errorStrip.classList.remove('show');
@@ -406,8 +418,8 @@ function setStatus(s) {
   if (s === 'FAULT')     statusVal.classList.add('fault');
 }
 
-halWrap.addEventListener('click', () => {
-  if (playing) stopPlayback();
+philWrap.addEventListener('click', () => {
+  if (playing || audio !== null) stopPlayback();
   else startPlayback();
 });
 

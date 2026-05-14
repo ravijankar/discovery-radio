@@ -14,7 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         webView = WKWebView(frame: .zero, configuration: config)
         webView.allowsBackForwardNavigationGestures = false
 
-        let url = URL(string: "https://wjc3.ravijankar.com")!
+        let url = URL(string: "https://wjc3.ravijankar.com?token=X1Hw-SiVqZl7DGIK0rKrOPoKNXUZ4ROK")!
         webView.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData))
 
         window = NSWindow(
