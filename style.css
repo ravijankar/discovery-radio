@@ -1,31 +1,31 @@
 /* ═══════════════════════════════════════════════════════
    DISCOVERY ONE — AUDIO RECEPTION SYSTEM
-   UNIT: HAL 9000 / AUDIO SUBSYSTEM 4
+   UNIT: PHIL 9000 / AUDIO SUBSYSTEM 4
    MISSION ELAPSED: CONTINUOUS
    ═══════════════════════════════════════════════════════ */
 
 :root {
-  --void:       #000000;
-  --panel:      #080808;
-  --panel2:     #0e0e0e;
-  --border:     #2a2a2a;
-  --border2:    #1a1a1a;
-  --white:      #e8e8e8;
-  --white-dim:  #888888;
-  --white-faint:#333333;
+  --void:       #080e1c;
+  --panel:      #0d1628;
+  --panel2:     #111e36;
+  --border:     #1a2540;
+  --border2:    #111e36;
+  --white:      #dde8ff;
+  --white-dim:  #7a9acc;
+  --white-faint:#3a5a88;
   --hal-red:    #cc1111;
   --hal-glow:   #ff2222;
   --hal-outer:  #660000;
   --amber:      #d4820a;
   --amber-dim:  #7a4a05;
-  --green:      #22aa44;
+  --green:      #22cc55;
   --green-dim:  #0a3318;
-  --grid:       rgba(255,255,255,0.03);
+  --grid:       rgba(100,150,255,0.03);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { background: var(--void); font-size: 18px; }
+html { background: var(--void); font-size: 22px; }
 
 body {
   background: var(--void);
@@ -68,7 +68,7 @@ body::after {
 }
 
 .masthead-left {
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.35em;
   color: var(--white-dim);
@@ -79,7 +79,7 @@ body::after {
 .masthead-center { text-align: center; }
 
 .masthead-title {
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 1.05rem;
   letter-spacing: 0.55em;
   color: var(--white);
@@ -110,7 +110,7 @@ body::after {
 
 /* ── MISSION CLOCK ────────────────────────────── */
 .mission-clock {
-  font-family: 'Nova Mono', monospace;
+  font-family: 'Josefin Sans', monospace;
   font-size: 0.65rem;
   letter-spacing: 0.3em;
   color: var(--amber);
@@ -158,7 +158,7 @@ body::after {
 }
 
 .sec-label {
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 0.5rem;
   letter-spacing: 0.55em;
   color: var(--white-dim);
@@ -192,7 +192,7 @@ body::after {
 }
 
 .station-item:hover  { background: var(--panel2); }
-.station-item.active { background: #0d0d0d; }
+.station-item.active { background: #0d1e3a; }
 
 /* Row number */
 .row-num {
@@ -214,7 +214,7 @@ body::after {
 .station-body { padding: 0.75rem 1.2rem; }
 
 .station-call {
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 0.7rem;
   letter-spacing: 0.25em;
   color: var(--white);
@@ -247,7 +247,7 @@ body::after {
 }
 
 .station-tags {
-  font-size: 0.45rem;
+  font-size: 0.58rem;
   letter-spacing: 0.25em;
   color: var(--white-faint);
   margin-top: 0.3rem;
@@ -320,14 +320,14 @@ body::after {
 }
 
 .station-freq {
-  font-family: 'Nova Mono', monospace;
+  font-family: 'Josefin Sans', monospace;
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   color: var(--amber);
 }
 
 .station-loc {
-  font-size: 0.45rem;
+  font-size: 0.58rem;
   letter-spacing: 0.15em;
   color: var(--white-faint);
   text-align: right;
@@ -433,8 +433,8 @@ body::after {
   position: absolute;
   bottom: -22px; left: 50%;
   transform: translateX(-50%);
-  font-size: 1.1rem;
-  letter-spacing: 0.5em;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
   color: var(--white-dim);
   white-space: nowrap;
   text-transform: uppercase;
@@ -458,7 +458,7 @@ body::after {
 }
 
 .recv-station {
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 1.25rem;
   letter-spacing: 0.2em;
   color: var(--white);
@@ -526,7 +526,7 @@ body::after {
 .meter-fill.red   { background: var(--hal-red); }
 
 .meter-val {
-  font-family: 'Nova Mono', monospace;
+  font-family: 'Josefin Sans', monospace;
   font-size: 0.5rem;
   letter-spacing: 0.1em;
   color: var(--white-dim);
@@ -573,7 +573,7 @@ body::after {
 .vu-bar.l4 { background: var(--hal-red); }
 
 .vu-ch-label {
-  font-size: 0.4rem;
+  font-size: 0.55rem;
   letter-spacing: 0.3em;
   color: var(--white-faint);
   text-align: center;
@@ -653,7 +653,7 @@ body::after {
   color: var(--white-faint);
   padding: 0.4rem;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.45rem;
+  font-size: 0.58rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   cursor: pointer;
@@ -715,14 +715,14 @@ body::after {
   justify-content: space-between;
   align-items: center;
   background: var(--panel);
-  font-size: 0.45rem;
+  font-size: 0.58rem;
   letter-spacing: 0.3em;
   color: var(--white-faint);
 }
 
 .bottom-bar .hal-ident {
   color: var(--hal-red);
-  font-family: 'Michroma', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   font-size: 0.5rem;
   letter-spacing: 0.4em;
 }
@@ -773,13 +773,13 @@ body::after {
   .station-call  { font-size: 0.75rem; }
   .station-name  { font-size: 0.55rem; }
   .station-freq  { font-size: 0.6rem; }
-  .station-loc   { font-size: 0.45rem; }
+  .station-loc   { font-size: 0.58rem; }
 
-  .filter-btn { padding: 3px 8px; font-size: 0.45rem; }
+  .filter-btn { padding: 3px 8px; font-size: 0.58rem; }
   .sec-header { padding: 0.4rem 1rem; }
 
   .bottom-bar {
-    font-size: 0.4rem;
+    font-size: 0.55rem;
     padding: 0.4rem 1rem;
     flex-wrap: wrap;
     gap: 0.25rem;
@@ -882,7 +882,7 @@ body::after {
   .station-body { padding: 0.7rem 0.9rem; }
   .station-call { font-size: 0.72rem; }
   .station-name { font-size: 0.5rem; }
-  .station-tags { font-size: 0.4rem; margin-top: 0.2rem; }
+  .station-tags { font-size: 0.55rem; margin-top: 0.2rem; }
 
   .station-right {
     padding: 0.6rem 0.7rem;
@@ -901,13 +901,13 @@ body::after {
     padding: 0.35rem 0.8rem !important;
   }
   .filter-btn {
-    font-size: 0.4rem;
+    font-size: 0.55rem;
     padding: 4px 6px;
   }
 
   .sec-header { padding: 0.35rem 0.8rem; }
   .sec-label  { font-size: 0.42rem; letter-spacing: 0.3em; }
-  .sec-count  { font-size: 0.4rem; }
+  .sec-count  { font-size: 0.55rem; }
 
   .bottom-bar { padding: 0.35rem 0.8rem; }
 
@@ -939,6 +939,7 @@ body::after {
   margin-left: auto;
 }
 .edit-db-btn:hover { border-color: var(--amber); color: var(--amber); }
+.edit-db-btn.active { border-color: var(--hal-red); color: var(--hal-red); }
 
 .editor-overlay {
   display: none;
@@ -997,7 +998,7 @@ body::after {
 }
 
 .editor-section-label {
-  font-size: 0.45rem;
+  font-size: 0.58rem;
   letter-spacing: .25em;
   color: var(--white-faint);
   padding: 8px 12px 4px;
@@ -1021,7 +1022,7 @@ body::after {
 .editor-list-item.selected { background: #0a1a0a; border-left: 2px solid var(--green); }
 
 .eli-call  { font-size: 0.6rem; letter-spacing: .1em; color: var(--white); }
-.eli-loc   { font-size: 0.4rem; color: var(--white-faint); letter-spacing: .1em; }
+.eli-loc   { font-size: 0.55rem; color: var(--white-faint); letter-spacing: .1em; }
 .eli-badge {
   font-size: 0.35rem;
   color: var(--white-faint);

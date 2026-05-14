@@ -10,8 +10,8 @@
   <title>Discovery I — Audio Reception System</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="manifest" href="manifest.json">
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Michroma&family=Nova+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -20,7 +20,7 @@
   <div class="masthead-left">
     SPACECRAFT: DISCOVERY ONE<br>
     MISSION: JUPITER / BEYOND<br>
-    UNIT: HAL 9000 SERIES IV
+    UNIT: PHIL 9000 SERIES IV
   </div>
   <div class="masthead-center">
     <div class="masthead-title">Audio Reception System</div>
@@ -92,7 +92,7 @@
         <div class="hal-ring"></div>
         <div class="hal-ticks"></div>
         <div class="hal-eye" id="halEye"></div>
-        <div class="hal-label">HAL 9000 · AUDIO CTRL</div>
+        <div class="hal-label">PHIL 9000 · AUDIO CTRL</div>
       </div>
       <div class="now-recv">
         <div class="recv-label">Now Receiving</div>
@@ -162,9 +162,10 @@
 
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
-  <span>DISCOVERY ONE · AUDIO RECEPTION SUBSYSTEM 4 · UNIT HAL/AR-4</span>
-  <span class="hal-ident">HAL 9000</span>
+  <span>DISCOVERY ONE · AUDIO RECEPTION SUBSYSTEM 4 · UNIT PHIL/AR-4</span>
+  <span class="hal-ident">PHIL 9000</span>
   <span>I'M SORRY, DAVE. THIS STATION IS NOMINAL.</span>
+  <button class="edit-db-btn" id="voxBtn" title="Toggle station announcements — Shift+click to reset token">⬡ VOX</button>
   <button class="edit-db-btn" id="editDbBtn" title="Edit Station Database">⬡ EDIT DB</button>
 </div>
 
@@ -229,8 +230,8 @@
   </div>
 </div>
 
-<script src="stations.js?v=5"></script>
-<script src="app.js?v=5"></script>
+<script src="stations.js?v=6"></script>
+<script src="app.js?v=6"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');

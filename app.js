@@ -376,6 +376,7 @@ function playStation(st, card) {
   animateVU(false); animateMeters(false);
   addLog('ACQUIRING: ' + st.call + ' — ' + st.name.substring(0, 25).toUpperCase(), 'hi');
   addLog(st.streams.length + ' SOURCE(S) AVAILABLE — INITIATING LOCK');
+  speakAnnouncement(st);
   tryStream(st, card, 0);
 }
 
@@ -690,12 +691,81 @@ function deleteStation(region, idx) {
   addLog('DB UPDATE: ' + st.call + ' REMOVED', 'warn');
 }
 
+// ── CHATTERBOX VOX ───────────────────────────
+let voxEnabled = false;
+let replicateToken = localStorage.getItem('replicate_token') || '';
+
+const voxBtn = document.getElementById('voxBtn');
+
+voxBtn.addEventListener('click', e => {
+  if (e.shiftKey) {
+    replicateToken = '';
+    localStorage.removeItem('replicate_token');
+    voxEnabled = false;
+    voxBtn.classList.remove('active');
+    addLog('VOX: TOKEN CLEARED', 'warn');
+    return;
+  }
+  if (!replicateToken) {
+    const tok = prompt('CHATTERBOX VOX\n\nEnter your Replicate API token\n(stored locally, never transmitted except to api.replicate.com):');
+    if (!tok || !tok.trim()) return;
+    replicateToken = tok.trim();
+    localStorage.setItem('replicate_token', replicateToken);
+  }
+  voxEnabled = !voxEnabled;
+  voxBtn.classList.toggle('active', voxEnabled);
+  addLog('VOX SYSTEM ' + (voxEnabled ? 'ONLINE' : 'OFFLINE'), voxEnabled ? 'ok' : 'warn');
+});
+
+async function speakAnnouncement(st) {
+  if (!voxEnabled || !replicateToken) return;
+  const text = `Tuning to ${st.call}. ${st.name}. Broadcasting from ${st.loc}.`;
+  addLog('VOX: SYNTHESIZING...', 'hi');
+  try {
+    const res = await fetch('https://api.replicate.com/v1/models/resemble-ai/chatterbox/predictions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${replicateToken}`,
+        'Content-Type': 'application/json',
+        Prefer: 'wait=60'
+      },
+      body: JSON.stringify({ input: { text, exaggeration: 0.35, cfg_weight: 0.5 } })
+    });
+    if (!res.ok) {
+      addLog('VOX: API ERROR ' + res.status, 'warn');
+      return;
+    }
+    let pred = await res.json();
+
+    // Poll if not complete yet (Prefer: wait timed out)
+    while (pred.status !== 'succeeded' && pred.status !== 'failed') {
+      await new Promise(r => setTimeout(r, 1500));
+      const poll = await fetch(`https://api.replicate.com/v1/predictions/${pred.id}`, {
+        headers: { Authorization: `Bearer ${replicateToken}` }
+      });
+      pred = await poll.json();
+    }
+
+    if (pred.status === 'failed') { addLog('VOX: GENERATION FAILED', 'warn'); return; }
+
+    const audioUrl = Array.isArray(pred.output) ? pred.output[0] : pred.output;
+    if (!audioUrl) { addLog('VOX: NO OUTPUT', 'warn'); return; }
+
+    const ann = new Audio(audioUrl);
+    ann.volume = Math.pow(currentVolume, 2);
+    ann.play().catch(() => {});
+    addLog('VOX: ANNOUNCEMENT TRANSMITTED', 'ok');
+  } catch (e) {
+    addLog('VOX: FAULT — ' + String(e.message).substring(0, 30), 'warn');
+  }
+}
+
 // ── INIT ─────────────────────────────────────
 loadUserStations();
 rebuildMainList();
 
 addLog('AUDIO RECEPTION SUBSYSTEM ONLINE', 'ok');
-addLog('HAL 9000 INTERFACE ACTIVE', 'ok');
+addLog('PHIL 9000 INTERFACE ACTIVE', 'ok');
 addLog('CORS-FREE PLAYBACK ENGINE ACTIVE', 'ok');
 addLog((STATIONS.us.length + STATIONS.intl.length) + ' BROADCAST SOURCES INDEXED');
 addLog('AWAITING OPERATOR SELECTION');
