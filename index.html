@@ -220,6 +220,7 @@
   <span>I'M SORRY, DAVE. THIS STATION IS NOMINAL.</span>
   <button class="edit-db-btn" id="voxBtn" title="Toggle station announcements — Shift+click to reset token">⬡ VOX</button>
   <button class="edit-db-btn" id="editDbBtn" title="Edit Station Database">⬡ EDIT DB</button>
+  <a href="boombox.html" class="edit-db-btn" style="text-decoration:none">⬡ BOOMBOX</a>
 </div>
 
 <!-- STATION EDITOR MODAL -->
@@ -283,8 +284,10 @@
   </div>
 </div>
 
-<script src="stations.js?v=7"></script>
-<script src="app.js?v=8"></script>
+<script>window.CURRENT_SKIN = 'phil9000';</script>
+<link rel="stylesheet" href="skin-switcher.css">
+<script src="stations.js?v=8"></script>
+<script src="app.js?v=9"></script>
 <script src="screens.js?v=1"></script>
 <script>
   new DiscoveryScreen(document.getElementById('dScreen1')).start();
@@ -295,5 +298,6 @@
     navigator.serviceWorker.register('/sw.js');
   }
 </script>
+<script src="skin-switcher.js" defer></script>
 </body>
 </html>

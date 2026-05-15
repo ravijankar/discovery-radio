@@ -102,16 +102,19 @@ function addLog(msg, cls = '') {
 }
 
 // ── VOLUME KNOB ──────────────────────────────
-const knobCanvas  = document.getElementById('volKnob');
-const knobCtx     = knobCanvas.getContext('2d');
-const knobValEl   = document.getElementById('volKnobVal');
-const MIN_ANGLE   = 135;
+const knobEl     = document.getElementById('volKnob');
+const knobValEl  = document.getElementById('volKnobVal');
+const isHwKnob   = knobEl.tagName.toLowerCase() !== 'canvas';
+const knobCanvas = isHwKnob ? null : knobEl;
+const knobCtx    = isHwKnob ? null : knobEl.getContext('2d');
+const MIN_ANGLE  = 135;
 
 function knobAngleFromVol(v) {
   return MIN_ANGLE + (v / 100) * 270;
 }
 
 function drawKnob(vol) {
+  if (isHwKnob) { knobEl.value = vol; return; }
   const c   = knobCanvas;
   const cx  = c.width  / 2;
   const cy  = c.height / 2;
@@ -194,39 +197,38 @@ function setVolume(v) {
   drawKnob(v);
 }
 
-// Knob drag
-let knobDragging = false, knobDragStartY = 0, knobDragStartVol = 80;
-
-knobCanvas.addEventListener('mousedown', e => {
-  knobDragging     = true;
-  knobDragStartY   = e.clientY;
-  knobDragStartVol = Math.round(currentVolume * 100);
-  e.preventDefault();
-});
-window.addEventListener('mousemove', e => {
-  if (!knobDragging) return;
-  setVolume(knobDragStartVol + (knobDragStartY - e.clientY) * 0.6);
-});
-window.addEventListener('mouseup', () => { knobDragging = false; });
-
-// Touch
-knobCanvas.addEventListener('touchstart', e => {
-  knobDragging     = true;
-  knobDragStartY   = e.touches[0].clientY;
-  knobDragStartVol = Math.round(currentVolume * 100);
-  e.preventDefault();
-}, { passive: false });
-window.addEventListener('touchmove', e => {
-  if (!knobDragging) return;
-  setVolume(knobDragStartVol + (knobDragStartY - e.touches[0].clientY) * 0.6);
-}, { passive: false });
-window.addEventListener('touchend', () => { knobDragging = false; });
-
-// Scroll wheel
-knobCanvas.addEventListener('wheel', e => {
-  e.preventDefault();
-  setVolume(Math.round(currentVolume * 100) - Math.sign(e.deltaY) * 3);
-}, { passive: false });
+if (isHwKnob) {
+  knobEl.addEventListener('change', e => setVolume(e.detail.value));
+} else {
+  // Knob drag
+  let knobDragging = false, knobDragStartY = 0, knobDragStartVol = 80;
+  knobCanvas.addEventListener('mousedown', e => {
+    knobDragging     = true;
+    knobDragStartY   = e.clientY;
+    knobDragStartVol = Math.round(currentVolume * 100);
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!knobDragging) return;
+    setVolume(knobDragStartVol + (knobDragStartY - e.clientY) * 0.6);
+  });
+  window.addEventListener('mouseup', () => { knobDragging = false; });
+  knobCanvas.addEventListener('touchstart', e => {
+    knobDragging     = true;
+    knobDragStartY   = e.touches[0].clientY;
+    knobDragStartVol = Math.round(currentVolume * 100);
+    e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('touchmove', e => {
+    if (!knobDragging) return;
+    setVolume(knobDragStartVol + (knobDragStartY - e.touches[0].clientY) * 0.6);
+  }, { passive: false });
+  window.addEventListener('touchend', () => { knobDragging = false; });
+  knobCanvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    setVolume(Math.round(currentVolume * 100) - Math.sign(e.deltaY) * 3);
+  }, { passive: false });
+}
 
 // Sync hidden slider
 document.getElementById('volSlider').addEventListener('input', function () {
@@ -266,28 +268,24 @@ function updateNpw(artist, title, album, artUrl) {
 }
 
 function pollNowPlaying(st) {
-  if (currentStation?.call !== st.call || !playing) return;
+  if (currentStation?.call !== st.call || !st.nowPlayingUrl) return;
 
-  if (st.nowPlayingUrl) {
-    fetch(st.nowPlayingUrl)
-      .then(r => r.json())
-      .then(data => {
-        if (currentStation?.call !== st.call) return;
-        const song = data?.now_playing?.song;
-        if (song) updateNpw(song.artist, song.title, song.album, song.art);
-      })
-      .catch(() => {});
-  } else {
-    const streamUrl = st.streams?.[streamIndex] || st.streams?.[0];
-    if (!streamUrl) return;
-    fetch('/api/icy-meta?url=' + encodeURIComponent(streamUrl))
-      .then(r => r.json())
-      .then(data => {
-        if (currentStation?.call !== st.call) return;
-        if (data.raw) updateNpw(data.artist, data.title, null, data.artUrl || null);
-      })
-      .catch(() => {});
-  }
+  fetch(st.nowPlayingUrl)
+    .then(r => r.json())
+    .then(data => {
+      if (currentStation?.call !== st.call) return;
+      let song;
+      if (st.nowPlayingUrl.includes('kexp.org')) {
+        const r = data?.results?.[0];
+        if (r) song = { artist: r.artist, title: r.song, album: r.album, art: r.thumbnail_uri };
+      } else {
+        // AzuraCast format
+        const s = data?.now_playing?.song;
+        if (s) song = { artist: s.artist, title: s.title, album: s.album, art: s.art };
+      }
+      if (song) updateNpw(song.artist, song.title, song.album, song.art);
+    })
+    .catch(() => {});
 }
 
 function clearNpw() {
@@ -447,6 +445,7 @@ function playStation(st, card) {
   allOff();
   clearLibraryActive();
   currentStation = st;
+  startNowPlaying(st);
   card.classList.add('active');
   recvStat.innerHTML   = st.call + '<span class="recv-cursor"></span>';
   recvDesc.textContent = st.desc.toUpperCase();

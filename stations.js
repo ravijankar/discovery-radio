@@ -51,6 +51,7 @@ const STATIONS = {
       call: 'KEXP', name: 'KEXP Seattle',
       loc: 'SEATTLE, WA', tags: ['eclectic'], freq: '90.3 FM',
       desc: 'Where the Music Matters',
+      nowPlayingUrl: 'https://api.kexp.org/v2/plays/?format=json&limit=1',
       streams: [
         'https://kexp.streamguys1.com/kexp160.aac',
         'https://kexp.streamguys1.com/kexp64.aac',
