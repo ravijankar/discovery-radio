@@ -344,6 +344,7 @@ function tryStream(idx) {
     animateVU(true);
     animateMeters(true);
     startNowPlaying();
+    skipBtn.disabled = false;
   }, { once: true });
 
   audio.addEventListener('error', () => {
@@ -395,6 +396,7 @@ function startPlayback() {
 
 function stopPlayback() {
   destroyAudio();
+  skipBtn.disabled = true;
   philWrap.classList.remove('playing');
   eyeLabel.textContent = 'ENGAGE TRANSMISSION';
   setStatus('STANDBY');
@@ -422,6 +424,29 @@ philWrap.addEventListener('click', () => {
   if (playing || audio !== null) stopPlayback();
   else startPlayback();
 });
+
+// ── SKIP ─────────────────────────────────────────
+const skipBtn = document.getElementById('skipBtn');
+
+async function skipTrack() {
+  skipBtn.disabled = true;
+  skipBtn.textContent = '⬡ SKIPPING';
+  try {
+    const r = await fetch('/api/skip', { method: 'POST' });
+    if (r.ok) {
+      addLog('SKIP COMMAND SENT — ADVANCING TRACK', 'hi');
+      setTimeout(pollNowPlaying, 2500);
+    } else {
+      addLog('SKIP REJECTED — ' + r.status, 'err');
+    }
+  } catch (e) {
+    addLog('SKIP ERROR: ' + e.message, 'err');
+  }
+  skipBtn.textContent = '⬡ SKIP';
+  setTimeout(() => { skipBtn.disabled = false; }, 3000);
+}
+
+skipBtn.addEventListener('click', skipTrack);
 
 // ── INIT ─────────────────────────────────────
 addLog('WJC3 AUDIO SYSTEM ONLINE', 'ok');

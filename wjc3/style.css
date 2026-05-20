@@ -22,7 +22,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { background: var(--void); font-size: 22px; }
+html { background: var(--void); font-size: 24px; }
 
 body {
   background: var(--void);
@@ -471,6 +471,28 @@ body::after {
   letter-spacing: 0.15em;
   color: var(--amber);
 }
+
+/* ── SKIP ────────────────────────────────────────── */
+.skip-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.6rem;
+}
+
+.skip-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--white-dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.skip-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+.skip-btn:disabled { opacity: 0.3; cursor: default; }
 
 /* ── ERROR STRIP ─────────────────────────────────── */
 .error-strip {

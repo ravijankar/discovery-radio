@@ -25,7 +25,7 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { background: var(--void); font-size: 22px; }
+html { background: var(--void); font-size: 24px; }
 
 body {
   background: var(--void);
@@ -286,7 +286,7 @@ body::after {
 }
 
 .featured-badge {
-  font-size: 0.38rem;
+  font-size: 0.5rem;
   letter-spacing: 0.3em;
   color: var(--white-faint);
   border: 1px solid var(--white-faint);
@@ -1089,7 +1089,7 @@ body::after {
 .eli-call  { font-size: 0.6rem; letter-spacing: .1em; color: var(--white); }
 .eli-loc   { font-size: 0.4rem; color: var(--white-faint); letter-spacing: .1em; }
 .eli-badge {
-  font-size: 0.35rem;
+  font-size: 0.5rem;
   color: var(--white-faint);
   border: 1px solid var(--border);
   padding: 1px 4px;
@@ -1430,7 +1430,7 @@ select.editor-input     { cursor: pointer; }
   border-color: var(--amber);
 }
 .bulletin-meta {
-  font-size: 0.38rem;
+  font-size: 0.5rem;
   letter-spacing: 0.22em;
   color: var(--white-faint);
 }
