@@ -576,6 +576,7 @@ function stopAll() {
   clearNpw();
   stopNowPlaying();
   clearLibraryActive();
+  stopLibraryProgress();
   addLog('TRANSMISSION TERMINATED BY OPERATOR', 'warn');
 }
 
@@ -1165,6 +1166,7 @@ function advanceLibraryTrack() {
     animateMeters(false);
     if (activeLibraryItem) { activeLibraryItem.classList.remove('active'); activeLibraryItem = null; }
     currentLibraryContext = null;
+    stopLibraryProgress();
     addLog('ALBUM COMPLETE', 'ok');
     return;
   }
@@ -1223,7 +1225,53 @@ function playLibraryTrack({ artist, album, tracks, trackIdx, elements }) {
   addLog('TRACK: ' + formatTrackName(filename).substring(0, 28).toUpperCase());
 
   tryStream(st, null, 0);
+  startLibraryProgress();
 }
+
+// ── LIBRARY PROGRESS BAR ──────────────────────
+const libProgressRow   = document.getElementById('libProgressRow');
+const libProgressTrack = document.getElementById('libProgressTrack');
+const libProgressFill  = document.getElementById('libProgressFill');
+const libElapsed       = document.getElementById('libElapsed');
+const libDuration      = document.getElementById('libDuration');
+
+function fmtTime(s) {
+  if (!isFinite(s) || s < 0) return '—';
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2, '0');
+}
+
+function startLibraryProgress() {
+  libProgressRow.style.display = '';
+  libProgressFill.style.width  = '0%';
+  libElapsed.textContent       = '0:00';
+  libDuration.textContent      = '—';
+}
+
+function stopLibraryProgress() {
+  libProgressRow.style.display = 'none';
+  libProgressFill.style.width  = '0%';
+  libElapsed.textContent       = '0:00';
+  libDuration.textContent      = '—';
+}
+
+// Poll timeupdate via interval (avoids stale audio ref issues)
+setInterval(() => {
+  if (!audio || currentStation?.call !== 'LIBRARY') return;
+  const cur = audio.currentTime, dur = audio.duration;
+  libElapsed.textContent = fmtTime(cur);
+  libDuration.textContent = fmtTime(dur);
+  libProgressFill.style.width = (isFinite(dur) && dur > 0)
+    ? (cur / dur * 100) + '%' : '0%';
+}, 500);
+
+libProgressTrack.addEventListener('click', e => {
+  if (!audio || currentStation?.call !== 'LIBRARY') return;
+  const dur = audio.duration;
+  if (!isFinite(dur) || dur <= 0) return;
+  const rect = libProgressTrack.getBoundingClientRect();
+  audio.currentTime = ((e.clientX - rect.left) / rect.width) * dur;
+});
 
 // Mode toggle
 document.getElementById('modeBroadcastBtn').addEventListener('click', () => {

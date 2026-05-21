@@ -548,6 +548,40 @@ body::after {
   text-transform: uppercase;
 }
 
+/* ── LIBRARY PROGRESS BAR ─────────────────────── */
+.lib-progress-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.42rem;
+  letter-spacing: 0.15em;
+  color: var(--white-faint);
+  margin-bottom: 0.35rem;
+}
+
+.lib-progress-track {
+  position: relative;
+  height: 3px;
+  background: var(--border);
+  cursor: pointer;
+}
+.lib-progress-track:hover { background: var(--border2); }
+
+.lib-progress-fill {
+  height: 100%;
+  background: var(--amber);
+  pointer-events: none;
+  transition: width 0.25s linear;
+}
+
+.lib-progress-track::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+}
+
 /* ── SIGNAL METERS ────────────────────────────── */
 .meters-section {
   padding: 1rem 1.5rem;
