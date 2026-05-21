@@ -318,6 +318,17 @@ function clearNpw() {
 
 philWrap.addEventListener('click', () => {
   if (bulletinPlaying) { stopBulletin(); return; }
+  if (currentStation?.call === 'LIBRARY' && audio) {
+    if (audio.paused) {
+      audio.play();
+      philWrap.classList.add('playing');
+    } else {
+      audio.pause();
+      philWrap.classList.remove('playing');
+    }
+    updateTransportBtn();
+    return;
+  }
   if (playing || audio !== null) stopAll();
   else if (currentStation) {
     if (currentStation.call === 'LIBRARY') {
@@ -1285,7 +1296,13 @@ function updateTransportBtn() {
 
 libPlayPauseBtn.addEventListener('click', () => {
   if (!audio || currentStation?.call !== 'LIBRARY') return;
-  if (audio.paused) { audio.play(); } else { audio.pause(); }
+  if (audio.paused) {
+    audio.play();
+    philWrap.classList.add('playing');
+  } else {
+    audio.pause();
+    philWrap.classList.remove('playing');
+  }
   updateTransportBtn();
 });
 
