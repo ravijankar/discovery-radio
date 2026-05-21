@@ -1263,6 +1263,7 @@ setInterval(() => {
   libDuration.textContent = fmtTime(dur);
   libProgressFill.style.width = (isFinite(dur) && dur > 0)
     ? (cur / dur * 100) + '%' : '0%';
+  updateTransportBtn();
 }, 500);
 
 libProgressTrack.addEventListener('click', e => {
@@ -1271,6 +1272,38 @@ libProgressTrack.addEventListener('click', e => {
   if (!isFinite(dur) || dur <= 0) return;
   const rect = libProgressTrack.getBoundingClientRect();
   audio.currentTime = ((e.clientX - rect.left) / rect.width) * dur;
+});
+
+const libPlayPauseBtn = document.getElementById('libPlayPauseBtn');
+const libPrevBtn      = document.getElementById('libPrevBtn');
+const libNextBtn      = document.getElementById('libNextBtn');
+
+function updateTransportBtn() {
+  if (!audio || currentStation?.call !== 'LIBRARY') return;
+  libPlayPauseBtn.textContent = audio.paused ? '▶' : '⏸';
+}
+
+libPlayPauseBtn.addEventListener('click', () => {
+  if (!audio || currentStation?.call !== 'LIBRARY') return;
+  if (audio.paused) { audio.play(); } else { audio.pause(); }
+  updateTransportBtn();
+});
+
+libPrevBtn.addEventListener('click', () => {
+  if (!currentLibraryContext) return;
+  const { artist, album, tracks, trackIdx, elements } = currentLibraryContext;
+  if (audio && audio.currentTime > 3) {
+    audio.currentTime = 0;
+    return;
+  }
+  const prevIdx = trackIdx - 1;
+  if (prevIdx < 0) return;
+  playLibraryTrack({ artist, album, tracks, trackIdx: prevIdx, elements });
+});
+
+libNextBtn.addEventListener('click', () => {
+  if (!currentLibraryContext) return;
+  advanceLibraryTrack();
 });
 
 // Mode toggle

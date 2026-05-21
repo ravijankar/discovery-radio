@@ -582,6 +582,39 @@ body::after {
   right: 0;
 }
 
+.lib-transport {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-top: 0.7rem;
+}
+
+.lib-transport-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--white-dim);
+  font-size: 0.85rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  line-height: 1;
+}
+.lib-transport-btn:hover:not(:disabled) {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.lib-transport-btn:disabled { opacity: 0.3; cursor: default; }
+.lib-transport-playpause {
+  border-color: var(--white-dim);
+  font-size: 1rem;
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
 /* ── SIGNAL METERS ────────────────────────────── */
 .meters-section {
   padding: 1rem 1.5rem;

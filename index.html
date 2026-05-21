@@ -163,6 +163,11 @@
         <div class="lib-progress-track" id="libProgressTrack">
           <div class="lib-progress-fill" id="libProgressFill" style="width:0%"></div>
         </div>
+        <div class="lib-transport">
+          <button class="lib-transport-btn" id="libPrevBtn" title="Previous track">⏮</button>
+          <button class="lib-transport-btn lib-transport-playpause" id="libPlayPauseBtn" title="Play / Pause">⏸</button>
+          <button class="lib-transport-btn" id="libNextBtn" title="Next track">⏭</button>
+        </div>
       </div>
       <div id="skipRow" style="display:none; margin-top:0.75rem; text-align:right">
         <button id="skipBtn" class="skip-btn">⬡ SKIP</button>
@@ -306,7 +311,7 @@
 <script>window.CURRENT_SKIN = 'phil9000';</script>
 <link rel="stylesheet" href="skin-switcher.css">
 <script src="stations.js?v=8"></script>
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
 <script src="screens.js?v=1"></script>
 <script>
   new DiscoveryScreen(document.getElementById('dScreen1')).start();
