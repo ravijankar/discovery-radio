@@ -25,6 +25,22 @@ const npwTitle   = document.getElementById('npwTitle');
 const npwAlbum   = document.getElementById('npwAlbum');
 const npwArt     = document.getElementById('npwArt');
 const npwPlaceholder = document.getElementById('npwPlaceholder');
+const skipRow    = document.getElementById('skipRow');
+const skipBtn    = document.getElementById('skipBtn');
+const skipFlash  = document.getElementById('skipFlash');
+
+function updateSkipBtn() {
+  const show = playing && currentStation?.call === 'WJC3';
+  skipRow.style.display = show ? '' : 'none';
+}
+
+skipBtn.addEventListener('click', async () => {
+  skipBtn.disabled = true;
+  const r = await fetch('/api/skip', { method: 'POST' }).catch(() => null);
+  skipBtn.disabled = false;
+  skipFlash.textContent = (r && r.ok) ? 'SKIPPED' : 'FAILED';
+  setTimeout(() => { skipFlash.textContent = ''; }, 2000);
+});
 
 // ── VU METERS ────────────────────────────────
 const vuL = document.getElementById('vuL');
@@ -361,6 +377,7 @@ function tryStream(st, card, idx) {
     clearTimeout(connectTimer);
     playing = true;
     streamIndex = idx;
+    updateSkipBtn();
     philWrap.classList.add('playing');
     sigOut.textContent  = 'LOCKED';
     modeOut.textContent = 'RECEIVING';
@@ -547,6 +564,7 @@ function playBulletin(auto) {
 
 function stopAll() {
   destroyAudio();
+  updateSkipBtn();
   philWrap.classList.remove('playing');
   sigOut.textContent   = 'NONE';
   modeOut.textContent  = 'STANDBY';
@@ -952,9 +970,10 @@ setInterval(() => {
 }, 5000);
 
 // ── LIBRARY MODE ─────────────────────────────
-let libraryData         = null;
-let activeLibraryItem   = null;
+let libraryData           = null;
+let activeLibraryItem     = null;
 let currentLibraryContext = null;
+let selectedLibraryArtist = null;
 
 function clearLibraryActive() {
   if (activeLibraryItem) { activeLibraryItem.classList.remove('active'); activeLibraryItem = null; }
@@ -970,8 +989,10 @@ function formatTrackName(filename) {
 }
 
 async function loadLibrary() {
-  const list = document.getElementById('libraryList');
-  list.innerHTML = '<div class="lib-status">SCANNING MEDIA ARCHIVE...</div>';
+  const artistCol = document.getElementById('libArtistsCol');
+  const detailCol = document.getElementById('libDetailCol');
+  artistCol.innerHTML = '<div class="lib-status">SCANNING MEDIA ARCHIVE...</div>';
+  detailCol.innerHTML = '';
   try {
     const r = await fetch('/api/library');
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -979,115 +1000,132 @@ async function loadLibrary() {
     renderLibrary(libraryData);
     addLog('ARCHIVE INDEXED: ' + libraryData.length + ' ARTISTS', 'ok');
   } catch (e) {
-    list.innerHTML = '<div class="lib-status lib-err">ARCHIVE UNAVAILABLE</div>';
+    artistCol.innerHTML = '<div class="lib-status lib-err">ARCHIVE UNAVAILABLE</div>';
     addLog('LIBRARY FETCH FAILED: ' + e.message, 'err');
   }
 }
 
 function renderLibrary(artists) {
-  const list = document.getElementById('libraryList');
-  list.innerHTML = '';
+  const artistCol = document.getElementById('libArtistsCol');
+  const detailCol = document.getElementById('libDetailCol');
   const query = (document.getElementById('libSearchInput')?.value || '').toLowerCase();
 
-  let rendered = 0;
-  artists.forEach(artist => {
-    const matchesArtist = !query || artist.name.toLowerCase().includes(query);
-    const filteredAlbums = artist.albums.map(album => {
-      const matchesAlbum = matchesArtist || album.name.toLowerCase().includes(query);
-      const filteredTracks = matchesAlbum
-        ? album.tracks
-        : album.tracks.filter(t => formatTrackName(t).toLowerCase().includes(query));
-      return filteredTracks.length ? { ...album, tracks: filteredTracks } : null;
-    }).filter(Boolean);
+  const filtered = query
+    ? artists.filter(a =>
+        a.name.toLowerCase().includes(query) ||
+        a.albums.some(al =>
+          al.name.toLowerCase().includes(query) ||
+          al.tracks.some(t => formatTrackName(t).toLowerCase().includes(query))
+        )
+      )
+    : artists;
 
-    if (!filteredAlbums.length) return;
-    rendered++;
+  document.getElementById('libArtistCount').textContent = filtered.length + ' ARTISTS';
 
-    const section = document.createElement('div');
-    section.className = 'lib-artist';
+  artistCol.innerHTML = '';
+  if (!filtered.length) {
+    artistCol.innerHTML = '<div class="lib-status">NO MATCHES</div>';
+    detailCol.innerHTML = '<div class="lib-status">NO MATCHES</div>';
+    return;
+  }
 
-    const totalTracks = filteredAlbums.reduce((n, a) => n + a.tracks.length, 0);
-    const header = document.createElement('div');
-    header.className = 'lib-artist-header';
-    header.innerHTML =
-      `<span class="lib-expand-icon">▶</span>` +
-      `<span class="lib-artist-name">${artist.name.toUpperCase()}</span>` +
-      `<span class="lib-artist-meta">${filteredAlbums.length} ALB · ${totalTracks} TRK</span>`;
-
-    const body = document.createElement('div');
-    body.className = 'lib-artist-body';
-    const autoExpand = !!query;
-    body.style.display = autoExpand ? 'block' : 'none';
-    if (autoExpand) header.querySelector('.lib-expand-icon').textContent = '▼';
-
-    filteredAlbums.forEach(album => {
-      const albumEl = document.createElement('div');
-      albumEl.className = 'lib-album';
-      const elements = buildAlbumTrackItems(artist.name, album.name, album.tracks);
-
-      if (album.name) {
-        const albumHeader = document.createElement('div');
-        albumHeader.className = 'lib-album-header';
-
-        const expandIcon = document.createElement('span');
-        expandIcon.className = 'lib-expand-icon';
-        expandIcon.textContent = autoExpand ? '▼' : '▶';
-
-        const albumName = document.createElement('span');
-        albumName.className = 'lib-album-name';
-        albumName.textContent = album.name.toUpperCase();
-
-        const albumMeta = document.createElement('span');
-        albumMeta.className = 'lib-album-meta';
-        albumMeta.textContent = album.tracks.length + ' TRK';
-
-        const playAllBtn = document.createElement('button');
-        playAllBtn.className = 'lib-play-album-btn';
-        playAllBtn.textContent = '▶ ALL';
-        playAllBtn.addEventListener('click', e => {
-          e.stopPropagation();
-          playLibraryTrack({ artist: artist.name, album: album.name, tracks: album.tracks, trackIdx: 0, elements });
-        });
-
-        albumHeader.appendChild(expandIcon);
-        albumHeader.appendChild(albumName);
-        albumHeader.appendChild(albumMeta);
-        albumHeader.appendChild(playAllBtn);
-
-        const trackList = document.createElement('div');
-        trackList.className = 'lib-track-list';
-        trackList.style.display = autoExpand ? 'block' : 'none';
-        elements.forEach(el => trackList.appendChild(el));
-
-        albumHeader.addEventListener('click', () => {
-          const open = trackList.style.display !== 'none';
-          trackList.style.display = open ? 'none' : 'block';
-          expandIcon.textContent = open ? '▶' : '▼';
-        });
-
-        albumEl.appendChild(albumHeader);
-        albumEl.appendChild(trackList);
-      } else {
-        elements.forEach(el => albumEl.appendChild(el));
-      }
-
-      body.appendChild(albumEl);
-    });
-
-    header.addEventListener('click', () => {
-      const open = body.style.display !== 'none';
-      body.style.display = open ? 'none' : 'block';
-      header.querySelector('.lib-expand-icon').textContent = open ? '▶' : '▼';
-    });
-
-    section.appendChild(header);
-    section.appendChild(body);
-    list.appendChild(section);
+  filtered.forEach(artist => {
+    const row = document.createElement('div');
+    row.className = 'lib-artist-row' + (selectedLibraryArtist === artist.name ? ' selected' : '');
+    const totalTracks = artist.albums.reduce((n, a) => n + a.tracks.length, 0);
+    row.innerHTML =
+      `<div class="lib-artist-row-name">${artist.name}</div>` +
+      `<div class="lib-artist-row-meta">${artist.albums.length} ALB · ${totalTracks} TRK</div>`;
+    row.addEventListener('click', () => selectLibraryArtist(artist, query));
+    artistCol.appendChild(row);
   });
 
-  if (!rendered) {
-    list.innerHTML = '<div class="lib-status">NO MATCHES</div>';
+  // Re-render detail if artist still in filtered set
+  if (selectedLibraryArtist) {
+    const still = filtered.find(a => a.name === selectedLibraryArtist);
+    if (still) renderArtistDetail(still, query);
+    else {
+      selectedLibraryArtist = null;
+      detailCol.innerHTML = '<div class="lib-status">SELECT AN ARTIST</div>';
+    }
+  } else if (filtered.length === 1) {
+    selectLibraryArtist(filtered[0], query);
   }
+}
+
+function selectLibraryArtist(artist, query) {
+  selectedLibraryArtist = artist.name;
+  document.querySelectorAll('.lib-artist-row').forEach(r => {
+    const name = r.querySelector('.lib-artist-row-name')?.textContent;
+    r.classList.toggle('selected', name === artist.name);
+  });
+  renderArtistDetail(artist, query || '');
+}
+
+function renderArtistDetail(artist, query) {
+  const detailCol = document.getElementById('libDetailCol');
+  detailCol.innerHTML = '';
+  clearLibraryActive();
+
+  let albums = artist.albums;
+  if (query && !artist.name.toLowerCase().includes(query)) {
+    albums = albums.map(al => {
+      if (al.name.toLowerCase().includes(query)) return al;
+      const tracks = al.tracks.filter(t => formatTrackName(t).toLowerCase().includes(query));
+      return tracks.length ? { ...al, tracks } : null;
+    }).filter(Boolean);
+  }
+
+  const autoExpand = !!query;
+
+  albums.forEach(album => {
+    const section = document.createElement('div');
+    section.className = 'lib-album-section';
+
+    const elements = buildAlbumTrackItems(artist.name, album.name, album.tracks);
+
+    const hdr = document.createElement('div');
+    hdr.className = 'lib-album-header';
+
+    const expandIcon = document.createElement('span');
+    expandIcon.className = 'lib-expand-icon';
+    expandIcon.textContent = autoExpand ? '▼' : '▶';
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'lib-album-name';
+    nameEl.textContent = album.name || artist.name;
+
+    const metaEl = document.createElement('span');
+    metaEl.className = 'lib-album-meta';
+    metaEl.textContent = album.tracks.length + ' TRK';
+
+    const playBtn = document.createElement('button');
+    playBtn.className = 'lib-play-album-btn';
+    playBtn.textContent = '▶ ALL';
+    playBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      playLibraryTrack({ artist: artist.name, album: album.name, tracks: album.tracks, trackIdx: 0, elements });
+    });
+
+    hdr.appendChild(expandIcon);
+    hdr.appendChild(nameEl);
+    hdr.appendChild(metaEl);
+    hdr.appendChild(playBtn);
+
+    const trackList = document.createElement('div');
+    trackList.style.display = autoExpand ? 'block' : 'none';
+    elements.forEach(el => trackList.appendChild(el));
+
+    hdr.addEventListener('click', () => {
+      const open = trackList.style.display !== 'none';
+      trackList.style.display = open ? 'none' : 'block';
+      expandIcon.textContent = open ? '▶' : '▼';
+    });
+
+    section.appendChild(hdr);
+    section.appendChild(trackList);
+    detailCol.appendChild(section);
+  });
 }
 
 function buildAlbumTrackItems(artist, album, tracks) {
@@ -1206,3 +1244,4 @@ document.getElementById('modeLibraryBtn').addEventListener('click', () => {
 document.getElementById('libSearchInput').addEventListener('input', () => {
   if (libraryData) renderLibrary(libraryData);
 });
+

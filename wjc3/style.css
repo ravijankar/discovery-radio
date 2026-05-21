@@ -481,18 +481,18 @@ body::after {
 
 .skip-btn {
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid var(--white-dim);
   color: var(--white-dim);
   font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  padding: 0.4rem 0.9rem;
+  padding: 0.5rem 1.1rem;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
 .skip-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
-.skip-btn:disabled { opacity: 0.3; cursor: default; }
+.skip-btn:disabled { opacity: 0.4; cursor: default; }
 
 /* ── ERROR STRIP ─────────────────────────────────── */
 .error-strip {

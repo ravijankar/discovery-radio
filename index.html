@@ -101,12 +101,18 @@
 
     <!-- Library Panel -->
     <div id="libraryPanel" style="display:none">
-      <div class="lib-search-row">
-        <span class="lib-search-label">SEARCH ARCHIVE</span>
+      <div class="lib-toolbar">
+        <span class="lib-search-label">SEARCH</span>
         <input type="text" id="libSearchInput" class="search-input" placeholder="ARTIST / ALBUM / TRACK"
                style="border:none;border-bottom:1px solid var(--border);background:transparent;padding:0.3rem 0;flex:1;">
+        <span id="libArtistCount" class="lib-toolbar-count"></span>
       </div>
-      <div id="libraryList" class="library-list"></div>
+      <div class="lib-split">
+        <div class="lib-artists-col" id="libArtistsCol"></div>
+        <div class="lib-detail-col" id="libDetailCol">
+          <div class="lib-status">SELECT AN ARTIST</div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -148,6 +154,10 @@
           <div class="npw-title"  id="npwTitle">AWAITING SIGNAL</div>
           <div class="npw-album"  id="npwAlbum"></div>
         </div>
+      </div>
+      <div id="skipRow" style="display:none; margin-top:0.75rem; text-align:right">
+        <button id="skipBtn" class="skip-btn">⬡ SKIP</button>
+        <span id="skipFlash" style="font-size:0.55rem;letter-spacing:0.2em;margin-left:0.75rem;color:var(--green)"></span>
       </div>
     </div>
 
@@ -287,7 +297,7 @@
 <script>window.CURRENT_SKIN = 'phil9000';</script>
 <link rel="stylesheet" href="skin-switcher.css">
 <script src="stations.js?v=8"></script>
-<script src="app.js?v=9"></script>
+<script src="app.js?v=10"></script>
 <script src="screens.js?v=1"></script>
 <script>
   new DiscoveryScreen(document.getElementById('dScreen1')).start();

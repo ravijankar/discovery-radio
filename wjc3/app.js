@@ -344,7 +344,6 @@ function tryStream(idx) {
     animateVU(true);
     animateMeters(true);
     startNowPlaying();
-    skipBtn.disabled = false;
   }, { once: true });
 
   audio.addEventListener('error', () => {
@@ -443,7 +442,7 @@ async function skipTrack() {
     addLog('SKIP ERROR: ' + e.message, 'err');
   }
   skipBtn.textContent = '⬡ SKIP';
-  setTimeout(() => { skipBtn.disabled = false; }, 3000);
+  setTimeout(() => { skipBtn.disabled = false; }, 2000);
 }
 
 skipBtn.addEventListener('click', skipTrack);
